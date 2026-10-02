@@ -1,0 +1,46 @@
+#!/bin/sh
+
+PID_DIR="/run/seven-media"
+XDG_RUNTIME_DIR="/run/user/0"
+
+start() {
+	mkdir -p "$PID_DIR" "$XDG_RUNTIME_DIR"
+	chmod 0700 "$XDG_RUNTIME_DIR"
+
+	export XDG_RUNTIME_DIR
+	export PIPEWIRE_RUNTIME_DIR="$XDG_RUNTIME_DIR"
+
+	if command -v pipewire >/dev/null 2>&1; then
+		pipewire >/var/log/pipewire.log 2>&1 &
+		echo $! > "$PID_DIR/pipewire.pid"
+	fi
+
+	if command -v pipewire-media-session >/dev/null 2>&1; then
+		pipewire-media-session >/var/log/pipewire-media-session.log 2>&1 &
+		echo $! > "$PID_DIR/media-session.pid"
+	fi
+}
+
+stop_one() {
+	file="$1"
+	if [ -f "$file" ]; then
+		kill "$(cat "$file")" 2>/dev/null || true
+		rm -f "$file"
+	fi
+}
+
+stop() {
+	stop_one "$PID_DIR/media-session.pid"
+	stop_one "$PID_DIR/pipewire.pid"
+}
+
+case "${1:-start}" in
+	start) start ;;
+	stop) stop ;;
+	restart)
+		stop
+		sleep 1
+		start
+		;;
+	*) exit 1 ;;
+esac
