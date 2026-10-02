@@ -84,6 +84,17 @@ fi
 image="$(find_image)" || die "Seven installation image was not found on the Live media."
 [ -f "$image" ] || die "installation image is missing: $image"
 
+checksum_file="$(dirname "$image")/seven-os.img.sha256"
+if [ -f "$checksum_file" ]; then
+	echo "[Seven Installer] Verifying image checksum..."
+	(
+		cd "$(dirname "$image")"
+		sha256sum -c "$(basename "$checksum_file")"
+	) || die "installation image checksum failed."
+else
+	echo "[Seven Installer] Warning: no checksum file found for custom image."
+fi
+
 image_source="$(df -P "$image" 2>/dev/null | awk 'NR==2 {print $1}' || true)"
 if [ -n "$image_source" ]; then
 	case "$image_source" in
