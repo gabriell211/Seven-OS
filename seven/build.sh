@@ -145,6 +145,7 @@ make -C "$ROOT_DIR" O="$KERNEL_OUT" x86_64_defconfig
     -e DRM \
     -e DRM_VIRTIO_GPU \
     -m DRM_I915 \
+    -m DRM_XE \
     -m DRM_AMDGPU \
     -m DRM_NOUVEAU \
     -e CFG80211 \
@@ -235,6 +236,7 @@ for required in \
     BR2_PACKAGE_FOOT=y \
     BR2_PACKAGE_NETWORK_MANAGER=y \
     BR2_PACKAGE_BLUEZ5_UTILS=y \
+    BR2_PACKAGE_SBC=y \
     BR2_PACKAGE_PIPEWIRE=y \
     BR2_PACKAGE_WIREPLUMBER=y \
     BR2_PACKAGE_KMOD_TOOLS=y \
