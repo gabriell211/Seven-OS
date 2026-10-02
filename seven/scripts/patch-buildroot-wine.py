@@ -31,16 +31,23 @@ def patch_config(path: Path) -> bool:
 
 def patch_makefile(path: Path) -> bool:
     text = path.read_text(encoding="utf-8")
-    marker = "# Seven OS: enable 64-bit Wine target for the new WoW64 architecture."
+    marker = "# Seven OS: enable Wine 11 new WoW64 on the x86_64 target."
 
     if marker in text:
         return False
 
-    disable_line = "\t--disable-win64 \\\n"
-    if disable_line not in text:
-        fail(f"expected --disable-win64 option not found: {path}")
+    disable_win64 = "\t--disable-win64 \\\n"
+    without_mingw = "\t--without-mingw \\\n"
 
-    text = text.replace(disable_line, "", 1)
+    if disable_win64 not in text:
+        fail(f"expected --disable-win64 option not found: {path}")
+    if without_mingw not in text:
+        fail(f"expected --without-mingw option not found: {path}")
+
+    # Remove only the target Wine options. HOST_WINE_CONF_OPTS has its own
+    # --without-mingw later in the file and must remain untouched.
+    text = text.replace(disable_win64, "", 1)
+    text = text.replace(without_mingw, "", 1)
 
     eval_line = "$(eval $(autotools-package))"
     if eval_line not in text:
@@ -49,9 +56,9 @@ def patch_makefile(path: Path) -> bool:
     block = f"""
 {marker}
 ifeq ($(BR2_x86_64),y)
-WINE_CONF_OPTS += --enable-win64
+WINE_CONF_OPTS += --enable-archs=x86_64,i386 --with-mingw=llvm-mingw
 else
-WINE_CONF_OPTS += --disable-win64
+WINE_CONF_OPTS += --disable-win64 --without-mingw
 endif
 
 """
@@ -80,9 +87,9 @@ def main() -> int:
     makefile_changed = patch_makefile(makefile)
 
     if config_changed or makefile_changed:
-        print("[Seven] Buildroot Wine package patched for x86_64/WoW64.")
+        print("[Seven] Buildroot Wine package patched for x86_64 new WoW64.")
     else:
-        print("[Seven] Buildroot Wine package already supports Seven x86_64.")
+        print("[Seven] Buildroot Wine package already supports Seven new WoW64.")
 
     return 0
 
