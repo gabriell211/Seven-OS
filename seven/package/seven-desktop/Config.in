@@ -1,0 +1,21 @@
+config BR2_PACKAGE_SEVEN_DESKTOP
+	bool "Seven Desktop"
+	depends on BR2_x86_64
+	depends on BR2_INSTALL_LIBSTDCPP
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on !BR2_STATIC_LIBS
+	select BR2_PACKAGE_QT6
+	select BR2_PACKAGE_QT6BASE_GUI
+	select BR2_PACKAGE_QT6BASE_OPENGL
+	select BR2_PACKAGE_QT6BASE_OPENGL_ES2
+	select BR2_PACKAGE_QT6BASE_NETWORK
+	select BR2_PACKAGE_QT6DECLARATIVE
+	select BR2_PACKAGE_QT6DECLARATIVE_QUICK
+	select BR2_PACKAGE_QT6WAYLAND
+	select BR2_PACKAGE_QT6WAYLAND_COMPOSITOR
+	select BR2_PACKAGE_QT6SVG
+	help
+	  Seven OS native Wayland compositor and desktop shell.
+
+	  Provides the Seven sidebar, status bar, dock, desktop widgets,
+	  client window area and the visual language used by the system.
