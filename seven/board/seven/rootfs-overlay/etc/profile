@@ -1,0 +1,6 @@
+export PATH="/usr/bin:/usr/sbin:/bin:/sbin"
+export PS1='seven:\w# '
+
+if [ -f /etc/motd ]; then
+    cat /etc/motd
+fi
