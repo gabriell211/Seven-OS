@@ -122,7 +122,7 @@ bool FileModel::activate(int row)
     const bool started = QProcess::startDetached(
         QStringLiteral("/usr/bin/env"),
         {
-            QStringLiteral("XDG_RUNTIME_DIR=/run/user/0"),
+            QStringLiteral("XDG_RUNTIME_DIR=/run/seven"),
             QStringLiteral("WAYLAND_DISPLAY=wayland-0"),
             QStringLiteral("QT_QPA_PLATFORM=wayland"),
             program,
