@@ -100,19 +100,37 @@ make -C "$ROOT_DIR" O="$KERNEL_OUT" x86_64_defconfig
     -e VIRTIO \
     -e VIRTIO_PCI \
     -e VIRTIO_NET \
+    -e VIRTIO_BLK \
     -e VIRTIO_INPUT \
     -e INPUT_EVDEV \
     -e DRM \
     -e DRM_VIRTIO_GPU \
+    -m DRM_I915 \
+    -m DRM_AMDGPU \
+    -m DRM_NOUVEAU \
     -e CFG80211 \
     -e MAC80211 \
+    -m IWLWIFI \
     -e RFKILL \
     -e BT \
     -e BT_HCIBTUSB \
     -e SND \
-    -e SND_HDA_INTEL \
-    -e SND_HDA_CODEC_GENERIC \
-    -e SND_HDA_CODEC_HDMI \
+    -m SND_HDA_INTEL \
+    -m SND_HDA_CODEC_GENERIC \
+    -m SND_HDA_CODEC_HDMI \
+    -m SND_USB_AUDIO \
+    -e EXT4_FS \
+    -e CGROUPS \
+    -e CGROUP_PIDS \
+    -e CGROUP_SCHED \
+    -e CGROUP_CPUACCT \
+    -e INOTIFY_USER \
+    -e FHANDLE \
+    -e NET_NS \
+    -e USER_NS \
+    -e AUTOFS_FS \
+    -e TMPFS_POSIX_ACL \
+    -e TMPFS_XATTR \
     -e VT \
     -e VT_CONSOLE \
     -e FRAMEBUFFER_CONSOLE \
@@ -165,7 +183,10 @@ for required in \
     BR2_PACKAGE_FOOT=y \
     BR2_PACKAGE_NETWORK_MANAGER=y \
     BR2_PACKAGE_PIPEWIRE=y \
-    BR2_PACKAGE_QT6WAYLAND_COMPOSITOR=y; do
+    BR2_PACKAGE_QT6WAYLAND_COMPOSITOR=y \
+    BR2_INIT_SYSTEMD=y \
+    BR2_TARGET_GRUB2_X86_64_EFI=y \
+    BR2_TARGET_ROOTFS_EXT2_4=y; do
     grep -qx "$required" "$BUILDROOT_OUT/.config" || \
         die "Required userspace feature missing: $required"
 done
@@ -189,27 +210,40 @@ for required_file in \
     "$BUILDROOT_OUT/target/usr/bin/seven-files" \
     "$BUILDROOT_OUT/target/usr/bin/seven-settings" \
     "$BUILDROOT_OUT/target/usr/bin/seven-monitor" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-store" \
     "$BUILDROOT_OUT/target/usr/bin/seven-terminal"; do
     [ -x "$required_file" ] || die "Required runtime file missing: $required_file"
 done
+
+echo "[Seven] Creating UEFI/GPT system image..."
+bash "$SEVEN_DIR/scripts/create-uefi-image.sh" \
+    "$BUILDROOT_OUT" \
+    "$KERNEL_OUT/arch/x86/boot/bzImage" \
+    "$SEVEN_DIR"
 
 IMAGES="$BUILD_ROOT/images"
 mkdir -p "$IMAGES"
 
 cp "$KERNEL_OUT/arch/x86/boot/bzImage" "$IMAGES/seven-kernel"
 cp "$BUILDROOT_OUT/images/rootfs.cpio.gz" "$IMAGES/seven-initramfs.cpio.gz"
+cp "$BUILDROOT_OUT/images/rootfs.ext2" "$IMAGES/rootfs.ext2"
+cp "$BUILDROOT_OUT/images/seven-os.img" "$IMAGES/seven-os.img"
 
 echo
-echo "Seven OS boot artifacts:"
-echo "  Kernel:    $IMAGES/seven-kernel"
-echo "  Initramfs: $IMAGES/seven-initramfs.cpio.gz"
+echo "Seven OS artifacts:"
+echo "  Kernel:     $IMAGES/seven-kernel"
+echo "  Initramfs:  $IMAGES/seven-initramfs.cpio.gz"
+echo "  Root FS:    $IMAGES/rootfs.ext2"
+echo "  UEFI image: $IMAGES/seven-os.img"
 echo
 echo "Windows compatibility:"
-echo "  Wine:      $BUILDROOT_OUT/target/usr/bin/wine"
-echo "  WinExec:   $BUILDROOT_OUT/target/usr/bin/seven-winexec"
-echo "  WinInstall:$BUILDROOT_OUT/target/usr/bin/seven-wininstall"
+echo "  Wine:       $BUILDROOT_OUT/target/usr/bin/wine"
+echo "  WinExec:    $BUILDROOT_OUT/target/usr/bin/seven-winexec"
+echo "  WinInstall: $BUILDROOT_OUT/target/usr/bin/seven-wininstall"
 echo "Desktop:"
-echo "  Desktop:   $BUILDROOT_OUT/target/usr/bin/seven-desktop"
+echo "  Desktop:    $BUILDROOT_OUT/target/usr/bin/seven-desktop"
 echo
-echo "Run with:"
-echo "  bash seven/run-qemu.sh"
+echo "Run:"
+echo "  Console: bash seven/run-qemu.sh --serial"
+echo "  Desktop: bash seven/run-qemu-gui.sh"
+echo "  UEFI:    bash seven/run-qemu-uefi.sh"
