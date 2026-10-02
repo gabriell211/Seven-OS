@@ -103,6 +103,15 @@ BR2_TARGET_ROOTFS_EXT2_LABEL="SEVENROOT"
 BR2_TARGET_ROOTFS_EXT2_SIZE="2048M"
 # BR2_TARGET_ROOTFS_TAR is not set
 
+# Installation and recovery tools.
+BR2_PACKAGE_UTIL_LINUX=y
+
+# Installation and recovery tools.
+BR2_PACKAGE_UTIL_LINUX_BINARIES=y
+
+# Installation and recovery tools.
+BR2_PACKAGE_E2FSPROGS=y
+
 # UEFI boot and image generation.
 BR2_TARGET_GRUB2=y
 BR2_TARGET_GRUB2_X86_64_EFI=y
