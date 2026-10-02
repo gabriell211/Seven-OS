@@ -149,6 +149,8 @@ for required in \
     BR2_PACKAGE_SEVEN_WIN=y \
     BR2_PACKAGE_WINE=y \
     BR2_PACKAGE_SEVEN_DESKTOP=y \
+    BR2_PACKAGE_SEVEN_CORE_APPS=y \
+    BR2_PACKAGE_FOOT=y \
     BR2_PACKAGE_QT6WAYLAND_COMPOSITOR=y; do
     grep -qx "$required" "$BUILDROOT_OUT/.config" || \
         die "Required userspace feature missing: $required"
@@ -161,7 +163,11 @@ for required_file in \
     "$BUILDROOT_OUT/target/usr/bin/wine" \
     "$BUILDROOT_OUT/target/usr/bin/seven-winexec" \
     "$BUILDROOT_OUT/target/usr/bin/seven-wininstall" \
-    "$BUILDROOT_OUT/target/usr/bin/seven-desktop"; do
+    "$BUILDROOT_OUT/target/usr/bin/seven-desktop" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-files" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-settings" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-monitor" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-terminal"; do
     [ -x "$required_file" ] || die "Required runtime file missing: $required_file"
 done
 
