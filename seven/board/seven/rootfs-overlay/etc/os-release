@@ -1,0 +1,10 @@
+NAME="Seven OS"
+PRETTY_NAME="Seven OS Developer Preview"
+ID=seven
+ID_LIKE=linux
+VERSION_ID="0.1-dev"
+VERSION="0.1 Developer Preview"
+VERSION_CODENAME=genesis
+HOME_URL="https://github.com/gabriell211/Seven-OS"
+SUPPORT_URL="https://github.com/gabriell211/Seven-OS"
+BUG_REPORT_URL="https://github.com/gabriell211/Seven-OS/issues"
