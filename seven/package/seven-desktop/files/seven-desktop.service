@@ -7,14 +7,19 @@ Conflicts=getty@tty1.service
 
 [Service]
 Type=simple
-Environment=XDG_RUNTIME_DIR=/run/user/0
+User=seven
+Group=seven
+SupplementaryGroups=video render input audio
+RuntimeDirectory=seven
+RuntimeDirectoryMode=0700
+Environment=XDG_RUNTIME_DIR=/run/seven
 Environment=QT_QPA_PLATFORM=eglfs
 Environment=QT_QPA_EGLFS_ALWAYS_SET_MODE=1
 Environment=QT_LOGGING_RULES=qt.qpa.*=false
 Environment=XDG_SESSION_TYPE=wayland
 Environment=XDG_CURRENT_DESKTOP=Seven
-ExecStartPre=/usr/bin/mkdir -p /run/user/0
-ExecStartPre=/usr/bin/chmod 0700 /run/user/0
+Environment=HOME=/home/seven
+WorkingDirectory=/home/seven
 ExecStart=/usr/bin/seven-desktop
 Restart=on-failure
 RestartSec=2
