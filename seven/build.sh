@@ -193,6 +193,7 @@ for required in \
     BR2_PACKAGE_WINE=y \
     BR2_PACKAGE_SEVEN_DESKTOP=y \
     BR2_PACKAGE_SEVEN_CORE_APPS=y \
+    BR2_PACKAGE_SEVEN_SYSTEM_TOOLS=y \
     BR2_PACKAGE_FOOT=y \
     BR2_PACKAGE_NETWORK_MANAGER=y \
     BR2_PACKAGE_BLUEZ5_UTILS=y \
@@ -253,6 +254,10 @@ for required_file in \
     "$BUILDROOT_OUT/target/usr/bin/seven-store" \
     "$BUILDROOT_OUT/target/usr/bin/seven-terminal" \
     "$BUILDROOT_OUT/target/usr/bin/seven-install" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-doctor" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-recovery" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-image-install" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-image-verify" \
     "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-desktop.service" \
     "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-pipewire.service" \
     "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-wireplumber.service"; do
