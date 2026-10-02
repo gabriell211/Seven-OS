@@ -1,6 +1,7 @@
 config BR2_PACKAGE_SEVEN_SYSTEM_TOOLS
 	bool "Seven system, recovery and installation tools"
 	select BR2_PACKAGE_COREUTILS
+	select BR2_PACKAGE_FOOT
 	select BR2_PACKAGE_UTIL_LINUX
 	select BR2_PACKAGE_UTIL_LINUX_BINARIES
 	select BR2_PACKAGE_UTIL_LINUX_MOUNT
