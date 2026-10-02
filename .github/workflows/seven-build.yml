@@ -1,0 +1,173 @@
+name: Seven OS Build Validation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "seven/**"
+      - "Makefile"
+      - "Kconfig"
+      - "include/linux/uts.h"
+      - "init/version-timestamp.c"
+      - ".github/workflows/seven-build.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: seven-os-main-build
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and boot Seven OS
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout Seven OS
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Free runner disk space
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo rm -rf /usr/local/lib/android || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /opt/hostedtoolcache/CodeQL || true
+          sudo apt-get clean
+          df -h
+
+      - name: Install host build dependencies
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            autoconf \
+            automake \
+            bc \
+            bison \
+            build-essential \
+            ca-certificates \
+            cmake \
+            cpio \
+            device-tree-compiler \
+            file \
+            flex \
+            gawk \
+            git \
+            gzip \
+            libelf-dev \
+            libssl-dev \
+            make \
+            meson \
+            ninja-build \
+            ovmf \
+            patch \
+            perl \
+            pkg-config \
+            python3 \
+            qemu-system-x86 \
+            rsync \
+            tar \
+            unzip \
+            wget \
+            xz-utils
+
+      - name: Preflight scripts
+        shell: bash
+        run: |
+          set -euxo pipefail
+          while IFS= read -r -d '' script; do
+            bash -n "$script"
+          done < <(find seven -type f -name '*.sh' -print0)
+
+          while IFS= read -r -d '' script; do
+            python3 -m py_compile "$script"
+          done < <(find seven -type f -name '*.py' -print0)
+
+      - name: Build Seven OS
+        shell: bash
+        env:
+          JOBS: "4"
+          SEVEN_BUILD_ISO: "1"
+        run: |
+          set -euxo pipefail
+          bash seven/build.sh
+
+      - name: Validate generated artifacts
+        shell: bash
+        run: |
+          set -euxo pipefail
+          BUILD_ROOT="../Seven-OS-build"
+          test -s "$BUILD_ROOT/images/seven-kernel"
+          test -s "$BUILD_ROOT/images/seven-initramfs.cpio.gz"
+          test -s "$BUILD_ROOT/images/rootfs.ext2"
+          test -s "$BUILD_ROOT/images/seven-os.img"
+          test -s "$BUILD_ROOT/images/seven-os-live.iso"
+
+          {
+            echo "Seven OS build manifest"
+            echo "Commit: $GITHUB_SHA"
+            echo
+            ls -lh "$BUILD_ROOT/images"
+            echo
+            sha256sum \
+              "$BUILD_ROOT/images/seven-kernel" \
+              "$BUILD_ROOT/images/seven-initramfs.cpio.gz" \
+              "$BUILD_ROOT/images/rootfs.ext2" \
+              "$BUILD_ROOT/images/seven-os.img" \
+              "$BUILD_ROOT/images/seven-os-live.iso"
+          } | tee seven-build-manifest.txt
+
+      - name: Boot smoke test
+        shell: bash
+        run: |
+          set -euxo pipefail
+          BUILD_ROOT="../Seven-OS-build"
+          LOG="$RUNNER_TEMP/seven-qemu.log"
+
+          set +e
+          timeout 90s qemu-system-x86_64 \
+            -m 2048 \
+            -smp 2 \
+            -kernel "$BUILD_ROOT/images/seven-kernel" \
+            -initrd "$BUILD_ROOT/images/seven-initramfs.cpio.gz" \
+            -append "console=ttyS0 rdinit=/sbin/init systemd.unit=multi-user.target loglevel=6" \
+            -nic user,model=virtio-net-pci \
+            -nographic \
+            -no-reboot >"$LOG" 2>&1
+          status=$?
+          set -e
+
+          cat "$LOG"
+
+          if grep -Eqi "Kernel panic|not syncing|VFS: Unable to mount root|Failed to execute /sbin/init" "$LOG"; then
+            echo "Seven OS smoke boot detected a fatal boot failure." >&2
+            exit 1
+          fi
+
+          if ! grep -Eqi "Seven version|Seven OS|systemd|Reached target.*Multi-User" "$LOG"; then
+            echo "Seven OS smoke boot did not reach a recognizable userspace state." >&2
+            exit 1
+          fi
+
+          if [ "$status" -ne 0 ] && [ "$status" -ne 124 ]; then
+            echo "QEMU exited unexpectedly with status $status." >&2
+            exit "$status"
+          fi
+
+      - name: Upload build manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seven-build-manifest
+          path: seven-build-manifest.txt
+          if-no-files-found: ignore
+          retention-days: 7
