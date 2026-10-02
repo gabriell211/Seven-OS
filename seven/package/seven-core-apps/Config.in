@@ -1,0 +1,10 @@
+config BR2_PACKAGE_SEVEN_CORE_APPS
+	bool "Seven core desktop applications"
+	depends on BR2_PACKAGE_SEVEN_DESKTOP
+	select BR2_PACKAGE_QT6
+	select BR2_PACKAGE_QT6BASE_GUI
+	select BR2_PACKAGE_QT6DECLARATIVE
+	select BR2_PACKAGE_QT6DECLARATIVE_QUICK
+	help
+	  Native Seven OS Wayland applications:
+	  Files, Settings and System Monitor.
