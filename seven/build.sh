@@ -143,7 +143,8 @@ make -C "$BUILDROOT_SRC" O="$BUILDROOT_OUT" -j"$JOBS"
 
 for required_file in \
     "$BUILDROOT_OUT/target/usr/bin/wine" \
-    "$BUILDROOT_OUT/target/usr/bin/seven-winexec"; do
+    "$BUILDROOT_OUT/target/usr/bin/seven-winexec" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-wininstall"; do
     [ -x "$required_file" ] || die "Required runtime file missing: $required_file"
 done
 
