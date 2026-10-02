@@ -248,6 +248,7 @@ for required_file in \
     "$BUILDROOT_OUT/target/usr/bin/seven-winexec" \
     "$BUILDROOT_OUT/target/usr/bin/seven-wininstall" \
     "$BUILDROOT_OUT/target/usr/bin/seven-desktop" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-session" \
     "$BUILDROOT_OUT/target/usr/bin/seven-files" \
     "$BUILDROOT_OUT/target/usr/bin/seven-settings" \
     "$BUILDROOT_OUT/target/usr/bin/seven-monitor" \
@@ -258,12 +259,16 @@ for required_file in \
     "$BUILDROOT_OUT/target/usr/bin/seven-recovery" \
     "$BUILDROOT_OUT/target/usr/bin/seven-image-install" \
     "$BUILDROOT_OUT/target/usr/bin/seven-image-verify" \
-    "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-desktop.service" \"; do
-    if [[ "$required_file" == *.service ]]; then
-        [ -f "$required_file" ] || die "Required systemd unit missing: $required_file"
-    else
-        [ -x "$required_file" ] || die "Required runtime file missing: $required_file"
-    fi
+    "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-session-runtime.service" \
+    "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-desktop.service"; do
+    case "$required_file" in
+        *.service)
+            [ -f "$required_file" ] || die "Required systemd unit missing: $required_file"
+            ;;
+        *)
+            [ -x "$required_file" ] || die "Required runtime file missing: $required_file"
+            ;;
+    esac
 done
 
 echo "[Seven] Creating UEFI/GPT system image..."
