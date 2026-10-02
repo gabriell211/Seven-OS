@@ -5,6 +5,28 @@ from pathlib import Path
 import sys
 
 
+NEW_MARKER = "# Seven OS: enable Wine 11 new WoW64 on the x86_64 target."
+OLD_MARKER = "# Seven OS: enable 64-bit Wine target for the new WoW64 architecture."
+
+NEW_BLOCK = f"""{NEW_MARKER}
+ifeq ($(BR2_x86_64),y)
+WINE_CONF_OPTS += --enable-archs=x86_64,i386 --with-mingw=llvm-mingw
+else
+WINE_CONF_OPTS += --disable-win64 --without-mingw
+endif
+
+"""
+
+OLD_BLOCK = f"""{OLD_MARKER}
+ifeq ($(BR2_x86_64),y)
+WINE_CONF_OPTS += --enable-win64
+else
+WINE_CONF_OPTS += --disable-win64
+endif
+
+"""
+
+
 def fail(message: str) -> None:
     print(f"[Seven] Buildroot Wine patch failed: {message}", file=sys.stderr)
     raise SystemExit(1)
@@ -31,10 +53,24 @@ def patch_config(path: Path) -> bool:
 
 def patch_makefile(path: Path) -> bool:
     text = path.read_text(encoding="utf-8")
-    marker = "# Seven OS: enable Wine 11 new WoW64 on the x86_64 target."
 
-    if marker in text:
+    if NEW_MARKER in text:
         return False
+
+    # Migrate a Buildroot checkout that was already patched by the first
+    # Seven prototype. This keeps incremental build directories usable.
+    if OLD_MARKER in text:
+        if OLD_BLOCK not in text:
+            fail(f"old Seven Wine patch has unexpected shape: {path}")
+
+        target_without_mingw = "\t--without-mingw \\\n"
+        if target_without_mingw not in text:
+            fail(f"target --without-mingw option not found during migration: {path}")
+
+        text = text.replace(target_without_mingw, "", 1)
+        text = text.replace(OLD_BLOCK, NEW_BLOCK, 1)
+        path.write_text(text, encoding="utf-8")
+        return True
 
     disable_win64 = "\t--disable-win64 \\\n"
     without_mingw = "\t--without-mingw \\\n"
@@ -53,17 +89,7 @@ def patch_makefile(path: Path) -> bool:
     if eval_line not in text:
         fail(f"autotools package marker not found: {path}")
 
-    block = f"""
-{marker}
-ifeq ($(BR2_x86_64),y)
-WINE_CONF_OPTS += --enable-archs=x86_64,i386 --with-mingw=llvm-mingw
-else
-WINE_CONF_OPTS += --disable-win64 --without-mingw
-endif
-
-"""
-
-    text = text.replace(eval_line, block + eval_line, 1)
+    text = text.replace(eval_line, NEW_BLOCK + eval_line, 1)
     path.write_text(text, encoding="utf-8")
     return True
 
