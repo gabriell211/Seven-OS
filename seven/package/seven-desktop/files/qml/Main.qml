@@ -437,7 +437,7 @@ WaylandCompositor {
                         Text { text: SevenSystem.kernel; color: "#8fa1c2"; font.pixelSize: 10; wrapMode: Text.Wrap }
                         Rectangle { width: parent.width; height: 1; color: "#263856" }
                         Text { text: "Compatibilidade Windows"; color: "#dce6f8"; font.pixelSize: 11 }
-                        Text { text: "Wine 11 • Win32/Win64 • NTSYNC"; color: "#64b5ff"; font.pixelSize: 10 }
+                        Text { text: SevenSystem.windowsRuntimeAvailable ? "Wine 11 • Win32/Win64 • NTSYNC" : "Runtime Windows indisponível"; color: SevenSystem.windowsRuntimeAvailable ? "#64b5ff" : "#ff7c87"; font.pixelSize: 10 }
                     }
                 }
             }
