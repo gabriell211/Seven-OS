@@ -194,6 +194,10 @@ done
 echo "[Seven] Building Seven userspace..."
 make -C "$BUILDROOT_SRC" O="$BUILDROOT_OUT" -j"$JOBS"
 
+echo "[Seven] Installing Seven Kernel into rootfs..."
+install -D -m 0644 "$KERNEL_OUT/arch/x86/boot/bzImage" \
+    "$BUILDROOT_OUT/target/boot/seven-kernel"
+
 echo "[Seven] Installing Seven Kernel modules into rootfs..."
 make -C "$ROOT_DIR" O="$KERNEL_OUT" \
     INSTALL_MOD_PATH="$BUILDROOT_OUT/target" \
