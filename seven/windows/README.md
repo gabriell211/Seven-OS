@@ -38,15 +38,18 @@ The compatibility entry point is intentionally separated from the Wine
 runtime. This keeps the Seven interface stable while allowing the runtime to be
 upgraded independently.
 
-Wine 11.x is the initial runtime target because it supports the completed new
-WoW64 architecture and NTSYNC integration.
+Seven currently targets **Wine 11.0**. Buildroot 2026.08 ships Wine 11.0 but
+normally restricts its target package to i386. During the Seven build,
+`scripts/patch-buildroot-wine.py` applies a narrow, version-aware adjustment
+that enables the package for x86_64 and changes the target build to
+`--enable-win64`.
 
-The current bootstrap image installs the Seven integration layer. The Wine
-runtime itself will be added to the desktop userspace once the graphical
-Wayland/Vulkan dependency set is part of the Seven image.
+The resulting Seven x86_64 image is expected to contain `/usr/bin/wine` plus
+`seven-winexec`. The build fails if either executable is missing.
 
-Until the runtime is installed, `seven-winexec` fails explicitly instead of
-silently pretending that a Windows program was executed.
+This is the initial non-graphical runtime foundation. Wayland, Vulkan, audio,
+fonts and gaming-specific integrations will be enabled as the Seven Desktop
+stack is added.
 
 ## Prefix layout
 
