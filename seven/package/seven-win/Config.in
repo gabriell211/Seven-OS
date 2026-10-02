@@ -1,0 +1,11 @@
+config BR2_PACKAGE_SEVEN_WIN
+	bool "Seven Windows compatibility layer"
+	depends on BR2_x86_64
+	help
+	  Installs the Seven Windows compatibility integration layer.
+
+	  seven-win provides the Seven WinExec launcher, isolated Wine
+	  prefixes per application, MSI routing and binfmt_misc registration
+	  for Windows PE executables.
+
+	  A Wine runtime must also be present in the final desktop image.
