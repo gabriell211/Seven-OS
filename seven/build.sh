@@ -162,6 +162,7 @@ echo
 echo "Windows compatibility:"
 echo "  Wine:      $BUILDROOT_OUT/target/usr/bin/wine"
 echo "  WinExec:   $BUILDROOT_OUT/target/usr/bin/seven-winexec"
+echo "  WinInstall:$BUILDROOT_OUT/target/usr/bin/seven-wininstall"
 echo
 echo "Run with:"
 echo "  bash seven/run-qemu.sh"
