@@ -15,6 +15,7 @@ BR2_TARGET_GENERIC_HOSTNAME="seven"
 BR2_TARGET_GENERIC_ISSUE="Seven OS"
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
 BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_SEVEN_PATH)/board/seven/rootfs-overlay"
+BR2_ROOTFS_USERS_TABLES="$(BR2_EXTERNAL_SEVEN_PATH)/board/seven/users_table.txt"
 
 # The Seven kernel is built from the repository root, not by Buildroot.
 # BR2_LINUX_KERNEL is not set
