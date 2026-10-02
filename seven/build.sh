@@ -9,6 +9,7 @@ BUILDROOT_SRC="$BUILD_ROOT/buildroot"
 BUILDROOT_OUT="$BUILD_ROOT/rootfs"
 BUILDROOT_VERSION="${BUILDROOT_VERSION:-2026.08}"
 JOBS="${JOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc 2>/dev/null || echo 2)}"
+SEVEN_BUILD_ISO="${SEVEN_BUILD_ISO:-1}"
 
 LLVM_MINGW_VERSION="20260922"
 LLVM_MINGW_ARCHIVE="llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-x86_64.tar.xz"
@@ -238,6 +239,7 @@ for required_file in \
     "$BUILDROOT_OUT/target/usr/bin/seven-monitor" \
     "$BUILDROOT_OUT/target/usr/bin/seven-store" \
     "$BUILDROOT_OUT/target/usr/bin/seven-terminal" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-install" \
     "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-desktop.service" \
     "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-pipewire.service" \
     "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-wireplumber.service"; do
@@ -262,12 +264,20 @@ cp "$BUILDROOT_OUT/images/rootfs.cpio.gz" "$IMAGES/seven-initramfs.cpio.gz"
 cp "$BUILDROOT_OUT/images/rootfs.ext2" "$IMAGES/rootfs.ext2"
 cp "$BUILDROOT_OUT/images/seven-os.img" "$IMAGES/seven-os.img"
 
+if [ "$SEVEN_BUILD_ISO" = "1" ]; then
+    echo "[Seven] Creating self-contained Live ISO..."
+    bash "$SEVEN_DIR/make-iso.sh"
+fi
+
 echo
 echo "Seven OS artifacts:"
 echo "  Kernel:     $IMAGES/seven-kernel"
 echo "  Initramfs:  $IMAGES/seven-initramfs.cpio.gz"
 echo "  Root FS:    $IMAGES/rootfs.ext2"
 echo "  UEFI image: $IMAGES/seven-os.img"
+if [ "$SEVEN_BUILD_ISO" = "1" ]; then
+    echo "  Live ISO:   $IMAGES/seven-os-live.iso"
+fi
 echo
 echo "Windows compatibility:"
 echo "  Wine:       $BUILDROOT_OUT/target/usr/bin/wine"
