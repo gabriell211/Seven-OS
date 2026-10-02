@@ -81,9 +81,6 @@ WaylandCompositor {
                     ShellSurfaceItem {
                         id: surfaceItem
 
-                        required property var modelData
-                        required property int index
-
                         shellSurface: modelData
                         x: 44 + (index % 5) * 28
                         y: 74 + (index % 4) * 24
@@ -225,8 +222,6 @@ WaylandCompositor {
                         width: parent.width
                         height: 42
                         spacing: 8
-                        leftPadding: 8
-
                         Rectangle {
                             width: 34
                             height: 34
@@ -375,9 +370,9 @@ WaylandCompositor {
                             spacing: 12
                             Text { text: "☁"; color: "#d9ebff"; font.pixelSize: 43 }
                             Column {
-                                Text { text: "22°C"; color: "#ffffff"; font.pixelSize: 28; font.bold: true }
-                                Text { text: "Parcialmente nublado"; color: "#b2bfd8"; font.pixelSize: 11 }
-                                Text { text: "Clima será integrado ao serviço Seven"; color: "#71809d"; font.pixelSize: 9 }
+                                Text { text: "--°C"; color: "#ffffff"; font.pixelSize: 28; font.bold: true }
+                                Text { text: "Clima indisponível"; color: "#b2bfd8"; font.pixelSize: 11 }
+                                Text { text: "Aguardando Seven Weather"; color: "#71809d"; font.pixelSize: 9 }
                             }
                         }
                     }
@@ -402,7 +397,7 @@ WaylandCompositor {
                         Row {
                             spacing: 8
 
-                            MetricCard { title: "CPU"; value: 0; accent: "#19a7ff" }
+                            MetricCard { title: "CPU"; value: SevenSystem.cpuPercent; accent: "#19a7ff" }
                             MetricCard { title: "RAM"; value: SevenSystem.memoryPercent; accent: "#8b5cff" }
                             MetricCard { title: "SSD"; value: SevenSystem.diskPercent; accent: "#34d5ad" }
                         }
