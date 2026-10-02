@@ -1,9 +1,11 @@
 config BR2_PACKAGE_SEVEN_WIN
 	bool "Seven Windows compatibility layer"
 	depends on BR2_x86_64
+	depends on BR2_INIT_SYSTEMD
 	depends on !BR2_STATIC_LIBS
 	depends on BR2_TOOLCHAIN_HAS_THREADS_NPTL
 	select BR2_PACKAGE_WINE
+	select BR2_PACKAGE_SYSTEMD_BINFMT
 	help
 	  Installs the Seven Windows compatibility integration layer.
 
