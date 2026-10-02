@@ -127,13 +127,16 @@ for required in \
     CONFIG_NTSYNC=y \
     CONFIG_DRM=y \
     CONFIG_DRM_VIRTIO_GPU=y \
+    CONFIG_CGROUPS=y \
+    CONFIG_INOTIFY_USER=y \
+    CONFIG_FHANDLE=y \
     CONFIG_VIRTIO_INPUT=y; do
     grep -qx "$required" "$KERNEL_OUT/.config" || \
         die "Required kernel feature missing: $required"
 done
 
-echo "[Seven] Building Seven Kernel..."
-make -C "$ROOT_DIR" O="$KERNEL_OUT" -j"$JOBS" bzImage
+echo "[Seven] Building Seven Kernel and modules..."
+make -C "$ROOT_DIR" O="$KERNEL_OUT" -j"$JOBS" bzImage modules
 
 if [ ! -d "$BUILDROOT_SRC/.git" ]; then
     echo "[Seven] Fetching Buildroot $BUILDROOT_VERSION..."
@@ -169,6 +172,14 @@ done
 
 echo "[Seven] Building Seven userspace..."
 make -C "$BUILDROOT_SRC" O="$BUILDROOT_OUT" -j"$JOBS"
+
+echo "[Seven] Installing Seven Kernel modules into rootfs..."
+make -C "$ROOT_DIR" O="$KERNEL_OUT" \
+    INSTALL_MOD_PATH="$BUILDROOT_OUT/target" \
+    modules_install
+
+echo "[Seven] Regenerating root filesystems with kernel modules..."
+make -C "$BUILDROOT_SRC" O="$BUILDROOT_OUT" rootfs-cpio-rebuild rootfs-ext2-rebuild
 
 for required_file in \
     "$BUILDROOT_OUT/target/usr/bin/wine" \
