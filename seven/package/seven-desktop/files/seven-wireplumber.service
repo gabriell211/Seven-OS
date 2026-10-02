@@ -7,6 +7,9 @@ Before=seven-desktop.service
 
 [Service]
 Type=simple
+User=seven
+Group=seven
+SupplementaryGroups=audio video
 Environment=XDG_RUNTIME_DIR=/run/seven
 Environment=PIPEWIRE_RUNTIME_DIR=/run/seven
 ExecStart=/usr/bin/wireplumber
