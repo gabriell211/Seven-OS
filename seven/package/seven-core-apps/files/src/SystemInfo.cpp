@@ -72,7 +72,7 @@ void SystemInfo::refresh()
 
         if (fields.size() >= 5 && fields[0] == QStringLiteral("cpu")) {
             quint64 values[10]{};
-            const int count = std::min(10, fields.size() - 1);
+            const int count = std::min(10, static_cast<int>(fields.size() - 1));
 
             for (int i = 0; i < count; ++i) {
                 bool ok = false;
