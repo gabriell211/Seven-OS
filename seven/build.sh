@@ -17,7 +17,7 @@ require() {
     }
 }
 
-for cmd in git make gcc g++ bc bison flex perl rsync cpio gzip patch tar wget file; do
+for cmd in git make gcc g++ bc bison flex perl python3 rsync cpio gzip patch tar wget file; do
     require "$cmd"
 done
 
@@ -65,8 +65,21 @@ else
     echo "[Seven] Using existing Buildroot checkout."
 fi
 
+echo "[Seven] Enabling Wine 11 x86_64/WoW64 support..."
+python3 "$SEVEN_DIR/scripts/patch-buildroot-wine.py" "$BUILDROOT_SRC"
+
 echo "[Seven] Configuring Seven userspace..."
-make -C "$BUILDROOT_SRC"     O="$BUILDROOT_OUT"     BR2_EXTERNAL="$SEVEN_DIR"     seven_x86_64_defconfig
+make -C "$BUILDROOT_SRC" \
+    O="$BUILDROOT_OUT" \
+    BR2_EXTERNAL="$SEVEN_DIR" \
+    seven_x86_64_defconfig
+
+for required in BR2_PACKAGE_SEVEN_WIN=y BR2_PACKAGE_WINE=y; do
+    grep -qx "$required" "$BUILDROOT_OUT/.config" || {
+        echo "[Seven] Required userspace feature missing: $required" >&2
+        exit 1
+    }
+done
 
 echo "[Seven] Building Seven userspace..."
 make -C "$BUILDROOT_SRC" O="$BUILDROOT_OUT" -j"$JOBS"
