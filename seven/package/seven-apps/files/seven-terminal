@@ -2,5 +2,5 @@
 set -eu
 
 export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-wayland}"
-export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-seven-0}"
+export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
 exec /usr/bin/foot "$@"
