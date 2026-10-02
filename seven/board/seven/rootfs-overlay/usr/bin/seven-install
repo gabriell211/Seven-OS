@@ -1,0 +1,115 @@
+#!/bin/sh
+set -eu
+
+MEDIA_MOUNT="/run/seven-install-media"
+
+die() {
+	printf 'seven-install: %s\n' "$*" >&2
+	exit 1
+}
+
+find_image() {
+	if [ -n "${SEVEN_INSTALL_IMAGE:-}" ] && [ -f "$SEVEN_INSTALL_IMAGE" ]; then
+		printf '%s\n' "$SEVEN_INSTALL_IMAGE"
+		return 0
+	fi
+
+	for path in /seven/seven-os.img "$MEDIA_MOUNT/seven/seven-os.img"; do
+		if [ -f "$path" ]; then
+			printf '%s\n' "$path"
+			return 0
+		fi
+	done
+
+	mkdir -p "$MEDIA_MOUNT"
+
+	for device in /dev/disk/by-label/SEVEN_OS /dev/sr0 /dev/sr1; do
+		[ -e "$device" ] || continue
+		if mount -o ro "$device" "$MEDIA_MOUNT" 2>/dev/null; then
+			if [ -f "$MEDIA_MOUNT/seven/seven-os.img" ]; then
+				printf '%s\n' "$MEDIA_MOUNT/seven/seven-os.img"
+				return 0
+			fi
+			umount "$MEDIA_MOUNT" 2>/dev/null || true
+		fi
+	done
+
+	return 1
+}
+
+list_disks() {
+	printf '\nAvailable disks:\n'
+	lsblk -d -o NAME,SIZE,MODEL,TYPE,TRAN 2>/dev/null || true
+	printf '\n'
+}
+
+[ "$(id -u)" -eq 0 ] || die "must run as root."
+
+case "${1:-}" in
+	--list)
+		list_disks
+		exit 0
+		;;
+	-h|--help|"")
+		cat <<'EOF'
+Usage:
+  seven-install --list
+  seven-install /dev/sdX
+  SEVEN_INSTALL_IMAGE=/path/to/seven-os.img seven-install /dev/nvme0n1
+
+The target must be a whole disk, not a partition.
+ALL DATA ON THE TARGET DISK WILL BE DESTROYED.
+EOF
+		exit 0
+		;;
+esac
+
+target="$1"
+[ -b "$target" ] || die "target is not a block device: $target"
+
+name="$(basename "$(readlink -f "$target")")"
+[ -e "/sys/class/block/$name" ] || die "unknown block device: $target"
+[ ! -e "/sys/class/block/$name/partition" ] || die "target must be a whole disk, not a partition."
+
+case "$target" in
+	/dev/sr*|/dev/loop*|/dev/ram*)
+		die "refusing unsafe target type: $target"
+		;;
+esac
+
+if lsblk -nr -o MOUNTPOINTS "$target" 2>/dev/null | grep -q '[^[:space:]]'; then
+	die "target or one of its partitions is mounted. Unmount it first."
+fi
+
+image="$(find_image)" || die "Seven installation image was not found on the Live media."
+[ -f "$image" ] || die "installation image is missing: $image"
+
+image_source="$(df -P "$image" 2>/dev/null | awk 'NR==2 {print $1}' || true)"
+if [ -n "$image_source" ]; then
+	case "$image_source" in
+		"$target"|"$target"[0-9]*|"$target"p[0-9]*)
+			die "target contains the installation source."
+			;;
+	esac
+fi
+
+list_disks
+printf 'Image:  %s\n' "$image"
+printf 'Target: %s\n\n' "$target"
+printf 'THIS WILL DESTROY ALL DATA ON %s.\n' "$target"
+printf 'Type exactly: INSTALL SEVEN TO %s\n> ' "$target"
+IFS= read -r confirmation
+
+[ "$confirmation" = "INSTALL SEVEN TO $target" ] || die "confirmation did not match; installation cancelled."
+
+echo "[Seven Installer] Writing system image..."
+dd if="$image" of="$target" bs=16M conv=fsync status=progress
+sync
+
+if command -v partprobe >/dev/null 2>&1; then
+	partprobe "$target" 2>/dev/null || true
+fi
+
+echo
+echo "Seven OS was written successfully to $target."
+echo "Shut down the Live system, remove the installation media, and boot from the target disk."
