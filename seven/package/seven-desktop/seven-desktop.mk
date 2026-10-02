@@ -11,6 +11,14 @@ SEVEN_DESKTOP_LICENSE = MIT
 SEVEN_DESKTOP_LICENSE_FILES = LICENSE
 SEVEN_DESKTOP_DEPENDENCIES = qt6base qt6declarative qt6wayland qt6svg
 
+define SEVEN_DESKTOP_USERS
+	- - video -1 - - - - -
+	- - render -1 - - - - -
+	- - input -1 - - - - -
+	- - audio -1 - - - - -
+	seven 1000 seven 1000 * /home/seven /bin/sh video,render,input,audio Seven Desktop User
+endef
+
 define SEVEN_DESKTOP_INSTALL_INIT_SYSV
 	$(INSTALL) -D -m 0755 $(@D)/S70seven-desktop \
 		$(TARGET_DIR)/etc/init.d/S70seven-desktop
