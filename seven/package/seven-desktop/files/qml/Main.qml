@@ -7,6 +7,7 @@ import QtWayland.Compositor.XdgShell
 
 WaylandCompositor {
     id: compositor
+    socketName: "wayland-0"
 
     property color neonBlue: "#1488ff"
     property color neonPurple: "#923cff"
