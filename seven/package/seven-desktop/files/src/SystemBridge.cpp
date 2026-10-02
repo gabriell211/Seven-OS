@@ -196,10 +196,10 @@ void SystemBridge::refreshMetrics()
 
 void SystemBridge::powerOff()
 {
-    QProcess::startDetached(QStringLiteral("/bin/systemctl"), {QStringLiteral("poweroff")});
+    QProcess::startDetached(QStringLiteral("/usr/bin/loginctl"), {QStringLiteral("poweroff")});
 }
 
 void SystemBridge::reboot()
 {
-    QProcess::startDetached(QStringLiteral("/bin/systemctl"), {QStringLiteral("reboot")});
+    QProcess::startDetached(QStringLiteral("/usr/bin/loginctl"), {QStringLiteral("reboot")});
 }
