@@ -16,7 +16,9 @@ define SEVEN_DESKTOP_USERS
 	- - render -1 - - - - -
 	- - input -1 - - - - -
 	- - audio -1 - - - - -
-	seven 1000 seven 1000 * /home/seven /bin/sh video,render,input,audio Seven Desktop User
+	- - plugdev -1 - - - - -
+	- - netdev -1 - - - - -
+	seven 1000 seven 1000 * /home/seven /bin/sh video,render,input,audio,plugdev,netdev Seven Desktop User
 endef
 
 define SEVEN_DESKTOP_INSTALL_SESSION
