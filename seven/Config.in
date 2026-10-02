@@ -1,2 +1,5 @@
 # Seven OS Buildroot external configuration.
-# Packages specific to Seven OS will be sourced from here as they are added.
+
+menu "Seven OS"
+source "$BR2_EXTERNAL_SEVEN_PATH/package/seven-win/Config.in"
+endmenu
