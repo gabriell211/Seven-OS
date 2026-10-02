@@ -3,6 +3,7 @@ set -Eeuo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 WINEXEC="$ROOT_DIR/seven/package/seven-win/files/seven-winexec"
+chmod +x "$WINEXEC"
 TMP="$(mktemp -d)"
 
 cleanup() {
