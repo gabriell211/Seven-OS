@@ -1,0 +1,115 @@
+#!/bin/sh
+set -eu
+
+CONFIG_FILE="/etc/seven/seven-windows.conf"
+
+if [ -r "$CONFIG_FILE" ]; then
+	# shellcheck disable=SC1090
+	. "$CONFIG_FILE"
+fi
+
+SEVEN_WINDOWS_ENABLED="${SEVEN_WINDOWS_ENABLED:-1}"
+SEVEN_WINDOWS_WINE_BINARY="${SEVEN_WINE_BINARY:-${SEVEN_WINDOWS_WINE_BINARY:-wine}}"
+SEVEN_WINDOWS_DEBUG="${SEVEN_WINDOWS_DEBUG:--all}"
+SEVEN_WINDOWS_ARCH="${SEVEN_WINDOWS_ARCH:-wow64}"
+
+die() {
+	printf 'seven-win: %s\n' "$*" >&2
+	exit 1
+}
+
+usage() {
+	cat <<'EOF'
+Usage:
+  seven-winexec <program.exe> [arguments...]
+  seven-winexec <installer.msi> [arguments...]
+  seven-winexec --install <installer.exe|installer.msi> [arguments...]
+  seven-winexec --prefix <program.exe|installer.msi>
+  seven-winexec --version
+EOF
+}
+
+[ "$SEVEN_WINDOWS_ENABLED" = "1" ] || die "Windows compatibility is disabled."
+
+mode="run"
+case "${1:-}" in
+	--install)
+		mode="install"
+		shift
+		;;
+	--prefix)
+		mode="prefix"
+		shift
+		;;
+	--version)
+		printf 'Seven WinExec 0.1.0\n'
+		exit 0
+		;;
+	-h|--help|"")
+		usage
+		exit 0
+		;;
+esac
+
+target="${1:-}"
+[ -n "$target" ] || die "no Windows executable was provided."
+shift
+
+if command -v readlink >/dev/null 2>&1; then
+	resolved="$(readlink -f "$target" 2>/dev/null || true)"
+else
+	resolved=""
+fi
+
+if [ -z "$resolved" ]; then
+	case "$target" in
+		/*) resolved="$target" ;;
+		*) resolved="$(pwd)/$target" ;;
+	esac
+fi
+
+[ -f "$resolved" ] || die "file not found: $target"
+
+base="$(basename "$resolved")"
+safe_base="$(printf '%s' "$base" | tr -c 'A-Za-z0-9._-' '_')"
+path_id="$(printf '%s' "$resolved" | cksum | awk '{print $1}')"
+
+if [ -n "${SEVEN_WINDOWS_PREFIX_ROOT:-}" ]; then
+	prefix_root="$SEVEN_WINDOWS_PREFIX_ROOT"
+else
+	data_home="${XDG_DATA_HOME:-${HOME:-/tmp}/.local/share}"
+	prefix_root="$data_home/seven/windows/apps"
+fi
+
+prefix="$prefix_root/${safe_base}-${path_id}"
+
+if [ "$mode" = "prefix" ]; then
+	printf '%s\n' "$prefix"
+	exit 0
+fi
+
+command -v "$SEVEN_WINDOWS_WINE_BINARY" >/dev/null 2>&1 || {
+	die "Wine runtime is not installed. Install the Seven Windows Runtime first."
+}
+
+mkdir -p "$prefix"
+
+export WINEPREFIX="$prefix"
+export WINEARCH="$SEVEN_WINDOWS_ARCH"
+export WINEDEBUG="${WINEDEBUG:-$SEVEN_WINDOWS_DEBUG}"
+export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-winemenubuilder.exe=d}"
+
+case "$resolved" in
+	*.msi|*.MSI)
+		exec "$SEVEN_WINDOWS_WINE_BINARY" msiexec /i "$resolved" "$@"
+		;;
+	*.exe|*.EXE)
+		exec "$SEVEN_WINDOWS_WINE_BINARY" "$resolved" "$@"
+		;;
+	*)
+		if [ "$mode" = "install" ]; then
+			die "installer must be an .exe or .msi file."
+		fi
+		exec "$SEVEN_WINDOWS_WINE_BINARY" "$resolved" "$@"
+		;;
+esac
