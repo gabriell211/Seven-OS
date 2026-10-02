@@ -1,0 +1,36 @@
+#!/bin/sh
+set -eu
+
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/seven}"
+export XDG_SESSION_TYPE=wayland
+export XDG_CURRENT_DESKTOP=Seven
+export HOME="${HOME:-/home/seven}"
+
+children=""
+
+start_optional() {
+	command="$1"
+	shift
+
+	if command -v "$command" >/dev/null 2>&1; then
+		"$command" "$@" &
+		children="$children $!"
+	fi
+}
+
+cleanup() {
+	for pid in $children; do
+		kill "$pid" 2>/dev/null || true
+	done
+}
+
+trap cleanup EXIT INT TERM HUP
+
+start_optional pipewire
+sleep 1
+start_optional wireplumber
+
+/usr/bin/seven-desktop
+status=$?
+
+exit "$status"
