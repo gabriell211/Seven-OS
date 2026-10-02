@@ -1,15 +1,17 @@
 [Unit]
 Description=Seven Audio Server
 ConditionKernelCommandLine=!seven.recovery=1
-After=dbus.service
+After=dbus.service seven-session-runtime.service
+Requires=seven-session-runtime.service
 Before=seven-wireplumber.service seven-desktop.service
 
 [Service]
 Type=simple
+User=seven
+Group=seven
+SupplementaryGroups=audio video
 Environment=XDG_RUNTIME_DIR=/run/seven
 Environment=PIPEWIRE_RUNTIME_DIR=/run/seven
-ExecStartPre=/usr/bin/mkdir -p /run/seven
-ExecStartPre=/usr/bin/chmod 0700 /run/seven
 ExecStart=/usr/bin/pipewire
 Restart=on-failure
 RestartSec=1
