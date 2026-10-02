@@ -25,8 +25,31 @@ Usage:
   seven-winexec <installer.msi> [arguments...]
   seven-winexec --install <installer.exe|installer.msi> [arguments...]
   seven-winexec --prefix <program.exe|installer.msi>
+  seven-winexec --status
   seven-winexec --version
 EOF
+}
+
+status() {
+	printf 'Seven WinExec: 0.1.0\n'
+
+	if command -v "$SEVEN_WINDOWS_WINE_BINARY" >/dev/null 2>&1; then
+		printf 'Windows runtime: available (%s)\n' "$SEVEN_WINDOWS_WINE_BINARY"
+	else
+		printf 'Windows runtime: missing\n'
+	fi
+
+	if [ -e /dev/ntsync ]; then
+		printf 'NTSYNC: available\n'
+	else
+		printf 'NTSYNC: unavailable\n'
+	fi
+
+	if [ -e /proc/sys/fs/binfmt_misc/seven-pe ]; then
+		printf 'PE handler: registered\n'
+	else
+		printf 'PE handler: not registered\n'
+	fi
 }
 
 [ "$SEVEN_WINDOWS_ENABLED" = "1" ] || die "Windows compatibility is disabled."
@@ -40,6 +63,10 @@ case "${1:-}" in
 	--prefix)
 		mode="prefix"
 		shift
+		;;
+	--status)
+		status
+		exit 0
 		;;
 	--version)
 		printf 'Seven WinExec 0.1.0\n'
@@ -74,14 +101,18 @@ base="$(basename "$resolved")"
 safe_base="$(printf '%s' "$base" | tr -c 'A-Za-z0-9._-' '_')"
 path_id="$(printf '%s' "$resolved" | cksum | awk '{print $1}')"
 
-if [ -n "${SEVEN_WINDOWS_PREFIX_ROOT:-}" ]; then
-	prefix_root="$SEVEN_WINDOWS_PREFIX_ROOT"
+if [ -n "${SEVEN_WINDOWS_PREFIX:-}" ]; then
+	prefix="$SEVEN_WINDOWS_PREFIX"
 else
-	data_home="${XDG_DATA_HOME:-${HOME:-/tmp}/.local/share}"
-	prefix_root="$data_home/seven/windows/apps"
-fi
+	if [ -n "${SEVEN_WINDOWS_PREFIX_ROOT:-}" ]; then
+		prefix_root="$SEVEN_WINDOWS_PREFIX_ROOT"
+	else
+		data_home="${XDG_DATA_HOME:-${HOME:-/tmp}/.local/share}"
+		prefix_root="$data_home/seven/windows/apps"
+	fi
 
-prefix="$prefix_root/${safe_base}-${path_id}"
+	prefix="$prefix_root/${safe_base}-${path_id}"
+fi
 
 if [ "$mode" = "prefix" ]; then
 	printf '%s\n' "$prefix"
