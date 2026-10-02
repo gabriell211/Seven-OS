@@ -125,6 +125,36 @@ if command -v partprobe >/dev/null 2>&1; then
 	partprobe "$target" 2>/dev/null || true
 fi
 
+echo "[Seven Installer] Relocating GPT backup header..."
+sgdisk -e "$target" >/dev/null
+
+echo "[Seven Installer] Expanding root partition..."
+parted -s "$target" resizepart 2 100%
+
+if command -v partprobe >/dev/null 2>&1; then
+	partprobe "$target" 2>/dev/null || true
+fi
+
+case "$target" in
+	/dev/nvme*|/dev/mmcblk*)
+		root_partition="${target}p2"
+		;;
+	*)
+		root_partition="${target}2"
+		;;
+esac
+
+[ -b "$root_partition" ] || die "root partition not found after image write: $root_partition"
+
+echo "[Seven Installer] Expanding Seven root filesystem..."
+e2fsck -fy "$root_partition" >/dev/null || {
+	status=$?
+	[ "$status" -le 1 ] || die "filesystem check failed with status $status"
+}
+resize2fs "$root_partition"
+
+sync
+
 echo
 echo "Seven OS was written successfully to $target."
 echo "Shut down the Live system, remove the installation media, and boot from the target disk."
