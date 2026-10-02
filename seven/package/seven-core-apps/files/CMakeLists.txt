@@ -47,3 +47,5 @@ endfunction()
 add_seven_app(seven-files Files.qml)
 add_seven_app(seven-settings Settings.qml)
 add_seven_app(seven-monitor Monitor.qml)
+
+add_seven_app(seven-store Store.qml)
