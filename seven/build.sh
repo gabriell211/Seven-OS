@@ -121,6 +121,18 @@ make -C "$ROOT_DIR" O="$KERNEL_OUT" x86_64_defconfig
     -m SND_HDA_CODEC_HDMI \
     -m SND_USB_AUDIO \
     -e EXT4_FS \
+    -e ACPI \
+    -e ACPI_AC \
+    -e ACPI_BATTERY \
+    -e ACPI_BUTTON \
+    -e ACPI_VIDEO \
+    -e CPU_FREQ \
+    -e CPU_FREQ_STAT \
+    -e X86_INTEL_PSTATE \
+    -e X86_AMD_PSTATE \
+    -e PM \
+    -e SUSPEND \
+    -e HIBERNATION \
     -e CGROUPS \
     -e CGROUP_PIDS \
     -e CGROUP_SCHED \
@@ -183,6 +195,7 @@ for required in \
     BR2_PACKAGE_SEVEN_CORE_APPS=y \
     BR2_PACKAGE_FOOT=y \
     BR2_PACKAGE_NETWORK_MANAGER=y \
+    BR2_PACKAGE_BLUEZ5_UTILS=y \
     BR2_PACKAGE_PIPEWIRE=y \
     BR2_PACKAGE_WIREPLUMBER=y \
     BR2_PACKAGE_KMOD_TOOLS=y \
