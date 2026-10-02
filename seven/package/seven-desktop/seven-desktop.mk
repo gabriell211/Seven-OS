@@ -31,6 +31,8 @@ define SEVEN_DESKTOP_INSTALL_INIT_SYSV
 endef
 
 define SEVEN_DESKTOP_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 0644 $(@D)/seven-session-runtime.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/seven-session-runtime.service
 	$(INSTALL) -D -m 0644 $(@D)/seven-desktop.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/seven-desktop.service
 	$(INSTALL) -D -m 0644 $(@D)/seven-pipewire.service \
@@ -38,6 +40,8 @@ define SEVEN_DESKTOP_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 0644 $(@D)/seven-wireplumber.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/seven-wireplumber.service
 	mkdir -p $(TARGET_DIR)/etc/systemd/system/graphical.target.wants
+	ln -sf /usr/lib/systemd/system/seven-session-runtime.service \
+		$(TARGET_DIR)/etc/systemd/system/graphical.target.wants/seven-session-runtime.service
 	ln -sf /usr/lib/systemd/system/seven-desktop.service \
 		$(TARGET_DIR)/etc/systemd/system/graphical.target.wants/seven-desktop.service
 	ln -sf /usr/lib/systemd/system/seven-pipewire.service \
