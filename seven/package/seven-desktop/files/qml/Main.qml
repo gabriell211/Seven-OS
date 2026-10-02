@@ -19,7 +19,7 @@ WaylandCompositor {
 
     XdgShell {
         onToplevelCreated: (toplevel, xdgSurface) => {
-            shellSurfaces.append({ surface: xdgSurface })
+            shellSurfaces.append({ surface: xdgSurface, minimized: false })
         }
     }
 
@@ -83,24 +83,117 @@ WaylandCompositor {
                         id: windowFrame
 
                         required property var surface
+                        required property bool minimized
                         required property int index
 
-                        x: 44 + (index % 5) * 28
-                        y: 74 + (index % 4) * 24
-                        width: Math.min(820, clientArea.width - 80)
-                        height: Math.min(560, clientArea.height - 100)
+                        property bool maximized: false
+                        property real restoreX: 44 + (index % 5) * 28
+                        property real restoreY: 74 + (index % 4) * 24
+                        property real restoreWidth: Math.min(820, clientArea.width - 80)
+                        property real restoreHeight: Math.min(560, clientArea.height - 100)
+
+                        visible: !minimized
+                        x: restoreX
+                        y: restoreY
+                        width: restoreWidth
+                        height: restoreHeight
 
                         Rectangle {
                             anchors.fill: parent
-                            color: "#080b14"
+                            color: "#e6080e1c"
                             border.width: 1
                             border.color: "#467bd0"
                             radius: 10
                         }
 
+                        Rectangle {
+                            id: titleBar
+                            height: 34
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            color: "#d20a1427"
+                            radius: 10
+
+                            Text {
+                                anchors.left: parent.left
+                                anchors.leftMargin: 13
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: parent.width - 130
+                                text: windowFrame.surface.toplevel.title || windowFrame.surface.toplevel.appId || "Aplicativo"
+                                color: "#eef5ff"
+                                font.pixelSize: 12
+                                font.bold: true
+                                elide: Text.ElideRight
+                            }
+
+                            Row {
+                                anchors.right: parent.right
+                                anchors.rightMargin: 6
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 4
+
+                                Button {
+                                    width: 28
+                                    height: 25
+                                    text: "—"
+                                    onClicked: shellSurfaces.setProperty(windowFrame.index, "minimized", true)
+                                }
+
+                                Button {
+                                    width: 28
+                                    height: 25
+                                    text: windowFrame.maximized ? "❐" : "□"
+                                    onClicked: {
+                                        if (!windowFrame.maximized) {
+                                            windowFrame.restoreX = windowFrame.x
+                                            windowFrame.restoreY = windowFrame.y
+                                            windowFrame.restoreWidth = windowFrame.width
+                                            windowFrame.restoreHeight = windowFrame.height
+                                            windowFrame.x = 0
+                                            windowFrame.y = 0
+                                            windowFrame.width = clientArea.width
+                                            windowFrame.height = clientArea.height
+                                            windowFrame.maximized = true
+                                            windowFrame.surface.toplevel.sendMaximized(
+                                                Qt.size(clientArea.width, Math.max(1, clientArea.height - titleBar.height))
+                                            )
+                                        } else {
+                                            windowFrame.x = windowFrame.restoreX
+                                            windowFrame.y = windowFrame.restoreY
+                                            windowFrame.width = windowFrame.restoreWidth
+                                            windowFrame.height = windowFrame.restoreHeight
+                                            windowFrame.maximized = false
+                                            windowFrame.surface.toplevel.sendUnmaximized(
+                                                Qt.size(
+                                                    Math.max(1, windowFrame.restoreWidth),
+                                                    Math.max(1, windowFrame.restoreHeight - titleBar.height)
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Button {
+                                    width: 28
+                                    height: 25
+                                    text: "×"
+                                    onClicked: windowFrame.surface.toplevel.sendClose()
+                                }
+                            }
+
+                            DragHandler {
+                                target: windowFrame
+                                enabled: !windowFrame.maximized
+                            }
+                        }
+
                         ShellSurfaceItem {
                             id: surfaceItem
-                            anchors.fill: parent
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: titleBar.bottom
+                            anchors.bottom: parent.bottom
                             anchors.margins: 1
                             shellSurface: windowFrame.surface
                             moveItem: windowFrame
@@ -489,6 +582,40 @@ WaylandCompositor {
                                         SevenSystem.launch(modelData.command)
                                     }
                                 }
+                            }
+                        }
+                    }
+
+                    Repeater {
+                        model: shellSurfaces
+
+                        delegate: Rectangle {
+                            required property var surface
+                            required property bool minimized
+                            required property int index
+
+                            visible: minimized
+                            width: visible ? 34 : 0
+                            height: 34
+                            radius: 9
+                            color: runningMouse.containsMouse ? "#31578e" : "#182b4d"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: surface.toplevel.title && surface.toplevel.title.length > 0
+                                    ? surface.toplevel.title.substring(0, 1).toUpperCase()
+                                    : "▣"
+                                color: "#ddecff"
+                                font.pixelSize: 14
+                                font.bold: true
+                            }
+
+                            MouseArea {
+                                id: runningMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                Accessible.name: "Restaurar janela"
+                                onClicked: shellSurfaces.setProperty(index, "minimized", false)
                             }
                         }
                     }
