@@ -1,0 +1,2 @@
+# Seven OS Buildroot external configuration.
+# Packages specific to Seven OS will be sourced from here as they are added.
