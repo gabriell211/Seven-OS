@@ -4,4 +4,5 @@ menu "Seven OS"
 source "$BR2_EXTERNAL_SEVEN_PATH/package/seven-desktop/Config.in"
 source "$BR2_EXTERNAL_SEVEN_PATH/package/seven-core-apps/Config.in"
 source "$BR2_EXTERNAL_SEVEN_PATH/package/seven-win/Config.in"
+source "$BR2_EXTERNAL_SEVEN_PATH/package/seven-system-tools/Config.in"
 endmenu
