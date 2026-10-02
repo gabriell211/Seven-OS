@@ -32,6 +32,11 @@ QString SystemBridge::kernel() const
     return QSysInfo::kernelType() + QStringLiteral(" ") + QSysInfo::kernelVersion();
 }
 
+double SystemBridge::cpuPercent() const
+{
+    return m_cpuPercent;
+}
+
 double SystemBridge::memoryPercent() const
 {
     return m_memoryPercent;
@@ -44,34 +49,79 @@ double SystemBridge::diskPercent() const
 
 bool SystemBridge::launch(const QString &program)
 {
-    if (program.trimmed().isEmpty()) {
+    const QString executable = program.trimmed();
+    if (executable.isEmpty()) {
         return false;
     }
 
-    if (QProcess::startDetached(program, {})) {
+    if (QProcess::startDetached(executable, {})) {
         return true;
     }
 
-    emit launchFailed(program);
+    emit launchFailed(executable);
     return false;
 }
 
 bool SystemBridge::launchWindows(const QString &path)
 {
-    if (path.trimmed().isEmpty()) {
+    const QString executable = path.trimmed();
+    if (executable.isEmpty()) {
         return false;
     }
 
-    if (QProcess::startDetached(QStringLiteral("/usr/bin/seven-winexec"), {path})) {
+    if (QProcess::startDetached(QStringLiteral("/usr/bin/seven-winexec"), {executable})) {
         return true;
     }
 
-    emit launchFailed(path);
+    emit launchFailed(executable);
     return false;
 }
 
 void SystemBridge::refreshMetrics()
 {
+    QFile stat(QStringLiteral("/proc/stat"));
+    if (stat.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        const QString line = QString::fromUtf8(stat.readLine()).trimmed();
+        const QStringList fields = line.split(' ', Qt::SkipEmptyParts);
+
+        if (fields.size() >= 5 && fields[0] == QStringLiteral("cpu")) {
+            quint64 values[10]{};
+            const int valueCount = std::min(10, fields.size() - 1);
+
+            for (int i = 0; i < valueCount; ++i) {
+                bool ok = false;
+                values[i] = fields[i + 1].toULongLong(&ok);
+                if (!ok) {
+                    values[i] = 0;
+                }
+            }
+
+            const quint64 idle = values[3] + values[4];
+            quint64 total = 0;
+            for (int i = 0; i < valueCount; ++i) {
+                total += values[i];
+            }
+
+            if (m_previousCpuTotal > 0 && total > m_previousCpuTotal) {
+                const quint64 totalDelta = total - m_previousCpuTotal;
+                const quint64 idleDelta = idle >= m_previousCpuIdle
+                    ? idle - m_previousCpuIdle
+                    : 0;
+
+                if (totalDelta > 0) {
+                    m_cpuPercent = std::clamp(
+                        (1.0 - (static_cast<double>(idleDelta) / static_cast<double>(totalDelta))) * 100.0,
+                        0.0,
+                        100.0
+                    );
+                }
+            }
+
+            m_previousCpuTotal = total;
+            m_previousCpuIdle = idle;
+        }
+    }
+
     QFile meminfo(QStringLiteral("/proc/meminfo"));
     if (meminfo.open(QIODevice::ReadOnly | QIODevice::Text)) {
         quint64 totalKb = 0;
@@ -100,7 +150,11 @@ void SystemBridge::refreshMetrics()
 
         if (totalKb > 0) {
             const double used = static_cast<double>(totalKb - std::min(totalKb, availableKb));
-            m_memoryPercent = std::clamp((used / static_cast<double>(totalKb)) * 100.0, 0.0, 100.0);
+            m_memoryPercent = std::clamp(
+                (used / static_cast<double>(totalKb)) * 100.0,
+                0.0,
+                100.0
+            );
         }
     }
 
