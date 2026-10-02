@@ -1,6 +1,0 @@
-#!/bin/sh
-set -eu
-
-export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-wayland}"
-export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
-exec /usr/bin/foot "$@"
