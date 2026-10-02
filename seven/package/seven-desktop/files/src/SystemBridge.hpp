@@ -12,6 +12,7 @@ class SystemBridge final : public QObject
     Q_PROPERTY(double cpuPercent READ cpuPercent NOTIFY metricsChanged)
     Q_PROPERTY(double memoryPercent READ memoryPercent NOTIFY metricsChanged)
     Q_PROPERTY(double diskPercent READ diskPercent NOTIFY metricsChanged)
+    Q_PROPERTY(bool windowsRuntimeAvailable READ windowsRuntimeAvailable NOTIFY metricsChanged)
 
 public:
     explicit SystemBridge(QObject *parent = nullptr);
@@ -22,6 +23,7 @@ public:
     [[nodiscard]] double cpuPercent() const;
     [[nodiscard]] double memoryPercent() const;
     [[nodiscard]] double diskPercent() const;
+    [[nodiscard]] bool windowsRuntimeAvailable() const;
 
     Q_INVOKABLE bool launch(const QString &program);
     Q_INVOKABLE bool launchWindows(const QString &path);
@@ -39,4 +41,5 @@ private:
     double m_cpuPercent{0.0};
     double m_memoryPercent{0.0};
     double m_diskPercent{0.0};
+    bool m_windowsRuntimeAvailable{false};
 };
