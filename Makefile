@@ -2,8 +2,8 @@
 VERSION = 7
 PATCHLEVEL = 3
 SUBLEVEL = 0
-EXTRAVERSION = -rc5
-NAME = Baby Opossum Posse
+EXTRAVERSION = -rc5-seven
+NAME = Seven Kernel
 
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
