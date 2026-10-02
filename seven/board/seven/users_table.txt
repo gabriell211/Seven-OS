@@ -1,1 +1,0 @@
-seven 1000 seven 1000 * /home/seven /bin/sh video,render,input,audio,plugdev,netdev Seven OS session user
