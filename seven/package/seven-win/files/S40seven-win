@@ -16,14 +16,14 @@ start() {
 
 	mkdir -p "$BINFMT_DIR"
 
-	if ! mountpoint -q "$BINFMT_DIR" 2>/dev/null; then
+	if ! grep -qs " $BINFMT_DIR binfmt_misc " /proc/mounts 2>/dev/null; then
 		mount -t binfmt_misc binfmt_misc "$BINFMT_DIR" 2>/dev/null || return 0
 	fi
 
 	[ -w "$REGISTER" ] || return 0
 
-	# MZ is the DOS header used by PE executables. Wine performs the
-	# complete PE validation after Seven WinExec receives the file.
+	# MZ is the DOS header used by PE executables. The compatibility
+	# runtime performs complete PE validation after Seven WinExec receives it.
 	register_handler "seven-pe" ':seven-pe:M::MZ::/usr/bin/seven-winexec:'
 	register_handler "seven-msi" ':seven-msi:E::msi::/usr/bin/seven-winexec:'
 	register_handler "seven-msi-upper" ':seven-msi-upper:E::MSI::/usr/bin/seven-winexec:'
