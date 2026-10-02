@@ -46,6 +46,17 @@ override_output="$(SEVEN_WINDOWS_PREFIX="$override_prefix" "$WINEXEC" "$TMP/apps
 grep -q "^WINEPREFIX=$override_prefix$" <<<"$override_output"
 
 forced_output="$(SEVEN_WINDOWS_ARCH=wow64 "$WINEXEC" "$TMP/apps/demo.exe")"
-grep -q '^WINEARCH=wow64$' <<<"$forced_output"
+grep -q '^WINEARCH=wow64
+ <<<"$forced_output"
+
+installer_prefix="$("$WINEXEC" --prefix "$TMP/apps/setup.msi")"
+mkdir -p "$installer_prefix/drive_c/Program Files/Seven Test"
+printf 'MZinstalled\n' > "$installer_prefix/drive_c/Program Files/Seven Test/installed.exe"
+
+installed_prefix="$("$WINEXEC" --prefix "$installer_prefix/drive_c/Program Files/Seven Test/installed.exe")"
+[[ "$installed_prefix" == "$installer_prefix" ]]
+
+installed_output="$("$WINEXEC" "$installer_prefix/drive_c/Program Files/Seven Test/installed.exe")"
+grep -q "^WINEPREFIX=$installer_prefix$" <<<"$installed_output"
 
 printf 'seven-win tests: PASS\n'
