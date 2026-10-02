@@ -45,6 +45,10 @@ list_disks() {
 
 [ "$(id -u)" -eq 0 ] || die "must run as root."
 
+if ! grep -qw 'seven.live=1' /proc/cmdline 2>/dev/null && [ "${SEVEN_ALLOW_INSTALL:-0}" != "1" ]; then
+	die "installation is only enabled from Seven Live media."
+fi
+
 case "${1:-}" in
 	--list)
 		list_disks
