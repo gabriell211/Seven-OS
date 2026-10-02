@@ -5,10 +5,21 @@ from pathlib import Path
 import sys
 
 
-NEW_MARKER = "# Seven OS: enable Wine 11 new WoW64 on the x86_64 target."
-OLD_MARKER = "# Seven OS: enable 64-bit Wine target for the new WoW64 architecture."
+CURRENT_MARKER = "# Seven OS: Wine 11 new WoW64 x86_64/i386 integration v2."
+PREVIOUS_MARKER = "# Seven OS: enable Wine 11 new WoW64 on the x86_64 target."
+FIRST_MARKER = "# Seven OS: enable 64-bit Wine target for the new WoW64 architecture."
 
-NEW_BLOCK = f"""{NEW_MARKER}
+CURRENT_BLOCK = f"""{CURRENT_MARKER}
+ifeq ($(BR2_x86_64),y)
+WINE_CONF_ENV += PATH="$(SEVEN_LLVM_MINGW_DIR)/bin:$(BR_PATH)"
+WINE_CONF_OPTS += --enable-archs=x86_64,i386 --with-mingw=llvm-mingw
+else
+WINE_CONF_OPTS += --disable-win64 --without-mingw
+endif
+
+"""
+
+PREVIOUS_BLOCK = f"""{PREVIOUS_MARKER}
 ifeq ($(BR2_x86_64),y)
 WINE_CONF_OPTS += --enable-archs=x86_64,i386 --with-mingw=llvm-mingw
 else
@@ -17,7 +28,7 @@ endif
 
 """
 
-OLD_BLOCK = f"""{OLD_MARKER}
+FIRST_BLOCK = f"""{FIRST_MARKER}
 ifeq ($(BR2_x86_64),y)
 WINE_CONF_OPTS += --enable-win64
 else
@@ -54,21 +65,28 @@ def patch_config(path: Path) -> bool:
 def patch_makefile(path: Path) -> bool:
     text = path.read_text(encoding="utf-8")
 
-    if NEW_MARKER in text:
+    if CURRENT_MARKER in text:
         return False
 
-    # Migrate a Buildroot checkout that was already patched by the first
-    # Seven prototype. This keeps incremental build directories usable.
-    if OLD_MARKER in text:
-        if OLD_BLOCK not in text:
-            fail(f"old Seven Wine patch has unexpected shape: {path}")
+    if PREVIOUS_MARKER in text:
+        if PREVIOUS_BLOCK not in text:
+            fail(f"previous Seven Wine patch has unexpected shape: {path}")
+        text = text.replace(PREVIOUS_BLOCK, CURRENT_BLOCK, 1)
+        path.write_text(text, encoding="utf-8")
+        return True
+
+    # Migrate the first Seven prototype, which still left the target
+    # --without-mingw option in WINE_CONF_OPTS.
+    if FIRST_MARKER in text:
+        if FIRST_BLOCK not in text:
+            fail(f"first Seven Wine patch has unexpected shape: {path}")
 
         target_without_mingw = "\t--without-mingw \\\n"
         if target_without_mingw not in text:
             fail(f"target --without-mingw option not found during migration: {path}")
 
         text = text.replace(target_without_mingw, "", 1)
-        text = text.replace(OLD_BLOCK, NEW_BLOCK, 1)
+        text = text.replace(FIRST_BLOCK, CURRENT_BLOCK, 1)
         path.write_text(text, encoding="utf-8")
         return True
 
@@ -89,7 +107,7 @@ def patch_makefile(path: Path) -> bool:
     if eval_line not in text:
         fail(f"autotools package marker not found: {path}")
 
-    text = text.replace(eval_line, NEW_BLOCK + eval_line, 1)
+    text = text.replace(eval_line, CURRENT_BLOCK + eval_line, 1)
     path.write_text(text, encoding="utf-8")
     return True
 
