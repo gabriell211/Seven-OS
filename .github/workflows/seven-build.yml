@@ -1,4 +1,4 @@
-# Validation revision 2
+# Validation revision 3
 name: Seven OS Build Validation
 
 on:
@@ -85,13 +85,34 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          while IFS= read -r -d '' script; do
-            bash -n "$script"
-          done < <(find seven -type f -name '*.sh' -print0)
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+
+          root = Path("seven")
+          for path in root.rglob("*"):
+              if not path.is_file():
+                  continue
+
+              try:
+                  first = path.read_bytes()[:128]
+              except OSError:
+                  continue
+
+              if first.startswith(b"#!/bin/sh") or first.startswith(b"#!/usr/bin/env bash") or first.startswith(b"#!/bin/bash"):
+                  subprocess.run(["bash", "-n", str(path)], check=True)
+          PY
 
           while IFS= read -r -d '' script; do
             python3 -m py_compile "$script"
           done < <(find seven -type f -name '*.py' -print0)
+
+      - name: Seven Windows compatibility tests
+        shell: bash
+        run: |
+          set -euxo pipefail
+          bash seven/tests/test-seven-win.sh
 
       - name: Build Seven OS
         shell: bash
