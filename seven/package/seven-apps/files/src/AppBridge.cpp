@@ -205,7 +205,7 @@ bool AppBridge::startDetached(const QString &program, const QStringList &argumen
     QProcess process;
     QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
     environment.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("wayland"));
-    environment.insert(QStringLiteral("WAYLAND_DISPLAY"), QStringLiteral("seven-0"));
+    environment.insert(QStringLiteral("WAYLAND_DISPLAY"), QStringLiteral("wayland-0"));
     environment.insert(QStringLiteral("XDG_SESSION_TYPE"), QStringLiteral("wayland"));
     environment.insert(QStringLiteral("XDG_CURRENT_DESKTOP"), QStringLiteral("Seven"));
 
