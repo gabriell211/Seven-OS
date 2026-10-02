@@ -183,6 +183,8 @@ for required in \
     BR2_PACKAGE_FOOT=y \
     BR2_PACKAGE_NETWORK_MANAGER=y \
     BR2_PACKAGE_PIPEWIRE=y \
+    BR2_PACKAGE_WIREPLUMBER=y \
+    BR2_PACKAGE_KMOD_TOOLS=y \
     BR2_PACKAGE_QT6WAYLAND_COMPOSITOR=y \
     BR2_INIT_SYSTEMD=y \
     BR2_TARGET_GRUB2_X86_64_EFI=y \
@@ -201,10 +203,30 @@ install -D -m 0644 "$KERNEL_OUT/arch/x86/boot/bzImage" \
 echo "[Seven] Installing Seven Kernel modules into rootfs..."
 make -C "$ROOT_DIR" O="$KERNEL_OUT" \
     INSTALL_MOD_PATH="$BUILDROOT_OUT/target" \
+    DEPMOD=true \
     modules_install
 
-echo "[Seven] Regenerating root filesystems with kernel modules..."
-make -C "$BUILDROOT_SRC" O="$BUILDROOT_OUT" rootfs-cpio-rebuild rootfs-ext2-rebuild
+echo "[Seven] Building host depmod..."
+make -C "$BUILDROOT_SRC" O="$BUILDROOT_OUT" host-kmod
+
+KERNEL_RELEASE="$(make -s -C "$ROOT_DIR" O="$KERNEL_OUT" kernelrelease)"
+DEPMOD=""
+for candidate in \
+    "$BUILDROOT_OUT/host/sbin/depmod" \
+    "$BUILDROOT_OUT/host/bin/depmod"; do
+    if [ -x "$candidate" ]; then
+        DEPMOD="$candidate"
+        break
+    fi
+done
+
+[ -n "$DEPMOD" ] || die "Buildroot host depmod was not generated."
+
+echo "[Seven] Generating module dependency database for $KERNEL_RELEASE..."
+"$DEPMOD" -b "$BUILDROOT_OUT/target" "$KERNEL_RELEASE"
+
+echo "[Seven] Regenerating root filesystems with Seven Kernel modules..."
+make -C "$BUILDROOT_SRC" O="$BUILDROOT_OUT" rootfs-cpio rootfs-ext2
 
 for required_file in \
     "$BUILDROOT_OUT/target/usr/bin/wine" \
@@ -215,8 +237,15 @@ for required_file in \
     "$BUILDROOT_OUT/target/usr/bin/seven-settings" \
     "$BUILDROOT_OUT/target/usr/bin/seven-monitor" \
     "$BUILDROOT_OUT/target/usr/bin/seven-store" \
-    "$BUILDROOT_OUT/target/usr/bin/seven-terminal"; do
-    [ -x "$required_file" ] || die "Required runtime file missing: $required_file"
+    "$BUILDROOT_OUT/target/usr/bin/seven-terminal" \
+    "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-desktop.service" \
+    "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-pipewire.service" \
+    "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-wireplumber.service"; do
+    if [[ "$required_file" == *.service ]]; then
+        [ -f "$required_file" ] || die "Required systemd unit missing: $required_file"
+    else
+        [ -x "$required_file" ] || die "Required runtime file missing: $required_file"
+    fi
 done
 
 echo "[Seven] Creating UEFI/GPT system image..."
