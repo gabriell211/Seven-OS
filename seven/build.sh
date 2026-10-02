@@ -151,6 +151,17 @@ make -C "$ROOT_DIR" O="$KERNEL_OUT" x86_64_defconfig
     -e CFG80211 \
     -e MAC80211 \
     -m IWLWIFI \
+    -m RTW88_8821CE \
+    -m RTW88_8821CU \
+    -m RTW88_8822CE \
+    -m RTW88_8822CU \
+    -m RTW89_8851BE \
+    -m RTW89_8852AE \
+    -m RTW89_8852BE \
+    -m RTW89_8852BU \
+    -m RTW89_8852CE \
+    -m RTW89_8852CU \
+    -m RTW89_8922AE \
     -e RFKILL \
     -e BT \
     -e BT_HCIBTUSB \
