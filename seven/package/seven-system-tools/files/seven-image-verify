@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+
+die() {
+	printf 'seven-image-verify: %s\n' "$*" >&2
+	exit 1
+}
+
+image="${1:-}"
+[ -n "$image" ] || die "usage: seven-image-verify /path/to/seven-os.img"
+[ -f "$image" ] || die "image not found: $image"
+
+checksum="${2:-$(dirname "$image")/seven-os.img.sha256}"
+[ -f "$checksum" ] || die "checksum not found: $checksum"
+
+(
+	cd "$(dirname "$image")"
+	sha256sum -c "$(basename "$checksum")"
+)
+
+echo "Seven image verification: OK"
