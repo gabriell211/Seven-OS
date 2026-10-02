@@ -335,30 +335,35 @@ Seven-specific components may have their own license files where appropriate, bu
 
 See `COPYING` and the relevant source-file SPDX headers for details.
 
-Aplicativo Windows
-    .exe / .msi
-        ↓
+## Windows Application Compatibility
+
+Seven OS includes a dedicated userspace compatibility entry point for Windows
+applications.
+
+```text
+.exe / .msi
+     ↓
 Seven WinExec
-        ↓
-detecção PE32 / PE32+
-        ↓
+     ↓
 Seven Windows Runtime
-        ↓
-Wine 11 / WoW64
-        ↓
+     ↓
+Wine / WoW64
+     ↓
 Win32 / NT APIs
-        ↓
-┌──────────────────────────────┐
-│ USER32 / GDI32 / COM / etc. │
-│ DirectX → Vulkan            │
-│ WinSock → sockets Seven     │
-│ Windows FS → Seven VFS      │
-│ Registry → prefix           │
-└──────────────────────────────┘
-        ↓
+     ↓
 Seven userspace
-        ↓
+     ↓
 Seven Kernel
+```
+
+The kernel build now enables `NTSYNC` and `binfmt_misc`. The base userspace
+contains `seven-winexec`, PE/MSI registration and isolated per-application
+prefix management.
+
+The runtime interface is deliberately independent from Wine itself. This lets
+Seven update the compatibility runtime without changing how applications are
+launched. The bootstrap image has the integration layer in place; the full
+graphical Wine runtime will be attached with the Wayland/Vulkan desktop stack.
 
 ---
 
