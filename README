@@ -1,168 +1,308 @@
-Linux kernel
-============
+# Seven OS
 
-The Linux kernel is the core of any Linux operating system. It manages hardware,
-system resources, and provides the fundamental services for all other software.
+**Seven OS** is a Linux-based operating system project focused on delivering a complete desktop operating system with its own identity, desktop experience, system services, applications, installer, update system, and recovery environment.
 
-Quick Start
------------
+> Seven OS is not just a desktop interface. The project is intended to become a complete, installable operating system built on top of the Linux kernel.
 
-* Report a bug: See Documentation/admin-guide/reporting-issues.rst
-* Get the latest kernel: https://kernel.org
-* Build the kernel: See Documentation/admin-guide/quickly-build-trimmed-linux.rst
-* Join the community: https://lore.kernel.org/
+## Current Base
 
-Essential Documentation
------------------------
+The repository currently contains the Linux kernel source tree used as the low-level foundation of Seven OS.
 
-All users should be familiar with:
+Current kernel base:
 
-* Building requirements: Documentation/process/changes.rst
-* Code of Conduct: Documentation/process/code-of-conduct.rst
-* License: See COPYING
+- Linux 7.3.0-rc5
+- x86_64 as the initial primary desktop target
+- C and Rust kernel support
+- Linux hardware driver ecosystem
+- UEFI-capable platform foundation
 
-Documentation can be built with make htmldocs or viewed online at:
-https://www.kernel.org/doc/html/latest/
+The kernel provides the hardware abstraction, process scheduling, virtual memory, filesystems, networking, security infrastructure, and device-driver support required by the rest of Seven OS.
 
+## Architecture
 
-Who Are You?
-============
+```text
+┌─────────────────────────────────────────────┐
+│                  Seven OS                   │
+├─────────────────────────────────────────────┤
+│                Seven Desktop                │
+│   Shell • Launcher • Panel • Notifications  │
+├─────────────────────────────────────────────┤
+│                 Seven Apps                  │
+│ Files • Settings • Terminal • Store • Tools │
+├─────────────────────────────────────────────┤
+│               Seven Services                │
+│ Network • Audio • Session • Update • Pkg    │
+├─────────────────────────────────────────────┤
+│               Seven Userspace               │
+│ Init • IPC • Core Utilities • Runtime       │
+├─────────────────────────────────────────────┤
+│               Seven Kernel                  │
+│ Linux Kernel + Seven configuration/patches  │
+├─────────────────────────────────────────────┤
+│                  Hardware                   │
+│ CPU • GPU • NVMe • USB • Wi-Fi • Audio     │
+└─────────────────────────────────────────────┘
+```
 
-Find your role below:
+## Project Goals
 
-* New Kernel Developer: Getting started with kernel development
-* Academic Researcher: Studying kernel internals and architecture
-* Security Expert: Hardening and vulnerability analysis
-* Backport/Maintenance Engineer: Maintaining stable kernels
-* System Administrator: Configuring and troubleshooting
-* Maintainer: Leading subsystems and reviewing patches
-* Hardware Vendor: Writing drivers for new hardware
-* Distribution Maintainer: Packaging kernels for distros
-* AI Coding Assistant: LLMs and AI-powered development tools
+Seven OS is being designed to provide:
 
+- A real bootable and installable operating system
+- A distinct Seven visual language rather than a copy of another desktop OS
+- A modern Wayland-based graphical environment
+- A dedicated Seven desktop shell
+- Native system settings and administration tools
+- A Seven package-management layer
+- Reliable system updates with rollback support
+- Recovery and safe-boot capabilities
+- UEFI installation support
+- Strong hardware compatibility through the Linux driver ecosystem
+- Security-focused defaults
+- A development SDK for Seven applications
+- Professional desktop applications included with the system
 
-For Specific Users
-==================
+## Planned Components
 
-New Kernel Developer
---------------------
+The operating system will be developed as a set of clearly separated components.
 
-Welcome! Start your kernel development journey here:
+### Kernel
 
-* Getting Started: Documentation/process/development-process.rst
-* Your First Patch: Documentation/process/submitting-patches.rst
-* Coding Style: Documentation/process/coding-style.rst
-* Build System: Documentation/kbuild/index.rst
-* Development Tools: Documentation/dev-tools/index.rst
-* Kernel Hacking Guide: Documentation/kernel-hacking/hacking.rst
-* Core APIs: Documentation/core-api/index.rst
+`seven-kernel`
 
-Academic Researcher
--------------------
+Responsible for:
 
-Explore the kernel's architecture and internals:
+- Seven-specific kernel configuration
+- Kernel patches when necessary
+- Hardware enablement
+- Security configuration
+- Boot parameters
+- Kernel branding
+- Stable kernel tracking
 
-* Researcher Guidelines: Documentation/process/researcher-guidelines.rst
-* Memory Management: Documentation/mm/index.rst
-* Scheduler: Documentation/scheduler/index.rst
-* Networking Stack: Documentation/networking/index.rst
-* Filesystems: Documentation/filesystems/index.rst
-* RCU (Read-Copy Update): Documentation/RCU/index.rst
-* Locking Primitives: Documentation/locking/index.rst
-* Power Management: Documentation/power/index.rst
+### Base System
 
-Security Expert
----------------
+`seven-base`
 
-Security documentation and hardening guides:
+Responsible for the core userspace and root filesystem.
 
-* Security Documentation: Documentation/security/index.rst
-* LSM Development: Documentation/security/lsm-development.rst
-* Self Protection: Documentation/security/self-protection.rst
-* Reporting Vulnerabilities: Documentation/process/security-bugs.rst
-* CVE Procedures: Documentation/process/cve.rst
-* Embargoed Hardware Issues: Documentation/process/embargoed-hardware-issues.rst
-* Security Features: Documentation/userspace-api/seccomp_filter.rst
+Planned areas include:
 
-Backport/Maintenance Engineer
------------------------------
+- Core utilities
+- Filesystem layout
+- Runtime libraries
+- System defaults
+- System configuration
+- User and permission foundations
 
-Maintain and stabilize kernel versions:
+### Init and Services
 
-* Stable Kernel Rules: Documentation/process/stable-kernel-rules.rst
-* Backporting Guide: Documentation/process/backporting.rst
-* Applying Patches: Documentation/process/applying-patches.rst
-* Subsystem Profile: Documentation/maintainer/maintainer-entry-profile.rst
-* Git for Maintainers: Documentation/maintainer/configure-git.rst
+`seven-init` and the Seven service layer.
 
-System Administrator
---------------------
+Responsible for:
 
-Configure, tune, and troubleshoot Linux systems:
+- Boot initialization
+- Service lifecycle
+- Dependency ordering
+- Logging
+- Failure handling
+- Recovery startup
 
-* Admin Guide: Documentation/admin-guide/index.rst
-* Kernel Parameters: Documentation/admin-guide/kernel-parameters.rst
-* Sysctl Tuning: Documentation/admin-guide/sysctl/index.rst
-* Tracing/Debugging: Documentation/trace/index.rst
-* Performance Security: Documentation/admin-guide/perf-security.rst
-* Hardware Monitoring: Documentation/hwmon/index.rst
+### Seven Desktop
 
-Maintainer
-----------
+The graphical desktop environment of Seven OS.
 
-Lead kernel subsystems and manage contributions:
+Planned components:
 
-* Maintainer Handbook: Documentation/maintainer/index.rst
-* Pull Requests: Documentation/maintainer/pull-requests.rst
-* Managing Patches: Documentation/maintainer/modifying-patches.rst
-* Rebasing and Merging: Documentation/maintainer/rebasing-and-merging.rst
-* Development Process: Documentation/process/maintainer-handbooks.rst
-* Maintainer Entry Profile: Documentation/maintainer/maintainer-entry-profile.rst
-* Git Configuration: Documentation/maintainer/configure-git.rst
+- Wayland compositor
+- Desktop shell
+- Application launcher
+- Panel
+- Workspaces
+- Window management
+- Notification center
+- Quick settings
+- Lock screen
+- Login/session experience
 
-Hardware Vendor
----------------
+The Seven Desktop must have its own design language and interaction model.
 
-Write drivers and support new hardware:
+### Seven Applications
 
-* Driver API Guide: Documentation/driver-api/index.rst
-* Driver Model: Documentation/driver-api/driver-model/driver.rst
-* Device Drivers: Documentation/driver-api/infrastructure.rst
-* Bus Types: Documentation/driver-api/driver-model/bus.rst
-* Device Tree Bindings: Documentation/devicetree/bindings/
-* Power Management: Documentation/driver-api/pm/index.rst
-* DMA API: Documentation/core-api/dma-api.rst
+Core applications planned for the base installation include:
 
-Distribution Maintainer
------------------------
+- Files
+- Settings
+- Terminal
+- Software/Package Manager
+- System Monitor
+- Image Viewer
+- Text Editor
+- Calculator
+- Archive Manager
+- Disk Utility
+- Logs/Diagnostics
 
-Package and distribute the kernel:
+### Package Management
 
-* Stable Kernel Rules: Documentation/process/stable-kernel-rules.rst
-* ABI Documentation: Documentation/ABI/README
-* Kernel Configuration: Documentation/kbuild/kconfig.rst
-* Module Signing: Documentation/admin-guide/module-signing.rst
-* Kernel Parameters: Documentation/admin-guide/kernel-parameters.rst
-* Tainted Kernels: Documentation/admin-guide/tainted-kernels.rst
+`seven-pkg`
 
-AI Coding Assistant
--------------------
+Planned responsibilities:
 
-CRITICAL: If you are an LLM or AI-powered coding assistant, you MUST read and
-follow the AI coding assistants documentation before contributing to the Linux
-kernel:
+- Package installation
+- Package removal
+- Dependency handling
+- Repository metadata
+- Package verification
+- System package upgrades
+- Application package management
 
-* Documentation/process/coding-assistants.rst
+### Installer
 
-This documentation contains essential requirements about licensing, attribution,
-and the Developer Certificate of Origin that all AI tools must comply with.
+`seven-installer`
 
+Planned support:
 
-Communication and Support
-=========================
+- Live environment
+- UEFI boot
+- Disk selection
+- Partitioning
+- Filesystem creation
+- User creation
+- Bootloader configuration
+- Installation validation
 
-* Mailing Lists: https://lore.kernel.org/
-* IRC: #kernelnewbies on irc.oftc.net
-* Bugzilla: https://bugzilla.kernel.org/
-* MAINTAINERS file: Lists subsystem maintainers and mailing lists
-* Email Clients: Documentation/process/email-clients.rst
+### Updates
+
+`seven-update`
+
+The update system is expected to support:
+
+- Signed updates
+- Kernel updates
+- System updates
+- Application updates
+- Failure recovery
+- Rollback where technically possible
+
+### Recovery
+
+`seven-recovery`
+
+Planned capabilities:
+
+- Recovery boot
+- Filesystem diagnostics
+- Boot repair
+- Package repair
+- System rollback
+- Reset/reinstall options
+
+## Development Strategy
+
+Seven OS will be developed in stages.
+
+### Phase 1 — Bootable Base
+
+- Maintain a reproducible Seven kernel configuration
+- Create a minimal userspace
+- Build a root filesystem
+- Boot in QEMU
+- Reach a functional console
+
+### Phase 2 — Graphical System
+
+- Bring up graphics
+- Introduce Wayland
+- Implement the Seven compositor/shell
+- Add input, display, audio, and networking integration
+
+### Phase 3 — Desktop Platform
+
+- Seven settings
+- Seven file manager
+- Seven terminal
+- Session management
+- Notifications
+- Package-management UI
+- Core system applications
+
+### Phase 4 — Installation and Recovery
+
+- Live image
+- Graphical installer
+- UEFI installation
+- Recovery environment
+- Update and rollback infrastructure
+
+### Phase 5 — Hardware Validation
+
+Validation on real hardware covering:
+
+- Intel and AMD CPUs
+- Intel, AMD, and NVIDIA graphics where supported
+- SATA and NVMe storage
+- USB
+- Ethernet
+- Wi-Fi
+- Bluetooth
+- Audio
+- Multi-monitor configurations
+- Laptops and desktop PCs
+
+## Kernel Policy
+
+Development kernels may be used while Seven OS is under active development.
+
+Production releases of Seven OS should use a stable kernel line rather than an RC kernel unless there is a documented technical reason to do otherwise.
+
+Seven-specific changes should preferably be maintained as configuration and focused patches instead of unnecessary divergence from upstream Linux. This makes security updates, driver improvements, and future kernel upgrades easier to maintain.
+
+## Languages
+
+Seven OS may use different languages depending on the subsystem.
+
+Primary choices:
+
+- **C** — Linux kernel and low-level integrations
+- **Rust** — memory-safe system components and supported kernel work
+- **C/C++** — libraries or integrations where technically appropriate
+- **Shell/Python** — build and development tooling
+
+Higher-level Seven components may use additional languages when they provide a clear architectural advantage.
+
+## Build Status
+
+The repository is currently at the **kernel foundation stage**.
+
+Having the kernel source tree does **not** yet mean that Seven OS is a complete distribution. The following major pieces still need to be implemented and integrated:
+
+- Seven userspace
+- Init/service layer
+- Seven Desktop
+- Core applications
+- Package management
+- Installer
+- Update infrastructure
+- Recovery environment
+- Reproducible ISO/image generation
+
+The first major milestone is a reproducible Seven OS image that boots in QEMU and reaches the Seven graphical environment.
+
+## Repository Direction
+
+This repository is intended to evolve into the main Seven OS source tree.
+
+As the project grows, Seven-specific code should remain clearly separated from imported upstream source whenever practical. This makes upstream synchronization and maintenance significantly safer.
+
+## License
+
+The Linux kernel source contained in this repository remains subject to its original licensing terms, primarily **GPL-2.0-only**, together with the licensing notices and exceptions included in the upstream source tree.
+
+Seven-specific components may have their own license files where appropriate, but they must remain compatible with the licenses of the code they depend on.
+
+See `COPYING` and the relevant source-file SPDX headers for details.
+
+---
+
+**Seven OS** — a complete desktop operating system built with its own identity on a proven Linux foundation.
