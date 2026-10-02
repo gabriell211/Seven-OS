@@ -1,0 +1,38 @@
+#!/bin/sh
+
+PIDFILE="/run/seven-desktop.pid"
+LOGFILE="/var/log/seven-desktop.log"
+
+start() {
+	[ -x /usr/bin/seven-desktop ] || return 0
+
+	mkdir -p /run/user/0 /var/log
+	chmod 0700 /run/user/0
+
+	export XDG_RUNTIME_DIR=/run/user/0
+	export QT_QPA_PLATFORM=eglfs
+	export QT_QPA_EGLFS_ALWAYS_SET_MODE=1
+	export QT_LOGGING_RULES="qt.qpa.*=false"
+
+	echo "Starting Seven Desktop..."
+	/usr/bin/seven-desktop >>"$LOGFILE" 2>&1 &
+	echo $! > "$PIDFILE"
+}
+
+stop() {
+	if [ -f "$PIDFILE" ]; then
+		kill "$(cat "$PIDFILE")" 2>/dev/null || true
+		rm -f "$PIDFILE"
+	fi
+}
+
+case "${1:-start}" in
+	start) start ;;
+	stop) stop ;;
+	restart)
+		stop
+		sleep 1
+		start
+		;;
+	*) exit 1 ;;
+esac
