@@ -1,2 +1,2 @@
-# Seven OS Buildroot external makefile.
-# Seven-specific packages will be included here as the userspace grows.
+# Seven OS Buildroot external packages.
+include $(sort $(wildcard $(BR2_EXTERNAL_SEVEN_PATH)/package/*/*.mk))
