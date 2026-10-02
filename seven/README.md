@@ -39,3 +39,22 @@ bash seven/run-qemu.sh
 ```
 
 The first boot target is intentionally small. Desktop graphics, Wayland, audio, NetworkManager, package management, installer, recovery and the Seven Desktop will be layered onto this reproducible base.
+
+
+## Windows application compatibility
+
+The base image now includes the `seven-win` integration package and enables
+the kernel primitives required for Windows compatibility:
+
+- `CONFIG_NTSYNC=y`
+- `CONFIG_BINFMT_MISC=y`
+- `seven-winexec`
+- PE/MSI `binfmt_misc` registration
+- isolated per-application runtime prefixes
+
+The Wine runtime is deliberately kept replaceable behind `seven-winexec`.
+The bootstrap image currently provides the integration layer; the full Wine
+11.x graphical runtime will be attached when the Wayland/Vulkan desktop
+dependency set is introduced.
+
+See [windows/README.md](windows/README.md).
