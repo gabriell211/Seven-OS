@@ -204,11 +204,17 @@ Seven OS will be developed in stages.
 
 ### Phase 1 — Bootable Base
 
-- Maintain a reproducible Seven kernel configuration
-- Create a minimal userspace
-- Build a root filesystem
-- Boot in QEMU
-- Reach a functional console
+Implementation has started.
+
+- [x] Seven-branded kernel tree
+- [x] Reproducible x86_64 kernel build entrypoint
+- [x] Minimal userspace definition
+- [x] Seven root filesystem identity
+- [x] Initramfs generation
+- [x] QEMU launch tooling
+- [ ] Full clean build validation
+- [ ] Confirm interactive boot on QEMU
+- [ ] Promote the bootstrap userspace to the permanent Seven service layer
 
 ### Phase 2 — Graphical System
 
@@ -273,21 +279,47 @@ Higher-level Seven components may use additional languages when they provide a c
 
 ## Build Status
 
-The repository is currently at the **kernel foundation stage**.
+The repository is currently at the **bootable base implementation stage**.
 
-Having the kernel source tree does **not** yet mean that Seven OS is a complete distribution. The following major pieces still need to be implemented and integrated:
+The kernel remains at the repository root. The `seven/` tree now defines the first Seven-specific userspace and image-building layer without duplicating or replacing the kernel.
 
-- Seven userspace
-- Init/service layer
-- Seven Desktop
-- Core applications
-- Package management
-- Installer
-- Update infrastructure
-- Recovery environment
-- Reproducible ISO/image generation
+Implemented foundation:
 
-The first major milestone is a reproducible Seven OS image that boots in QEMU and reaches the Seven graphical environment.
+- Seven Kernel branding
+- x86_64 kernel build configuration
+- Buildroot-based bootstrap userspace
+- Seven `/etc/os-release`
+- Seven hostname, issue, shell prompt and MOTD
+- compressed initramfs generation
+- reproducible build entrypoint
+- QEMU boot launcher
+
+Build the current developer image with:
+
+```bash
+bash seven/build.sh
+```
+
+Then boot it with:
+
+```bash
+bash seven/run-qemu.sh
+```
+
+By default the generated artifacts live outside the source tree in `../Seven-OS-build/images/`.
+
+The full clean build and interactive QEMU boot still need end-to-end validation. After that, Phase 2 begins with the permanent userspace/service layer followed by graphics, Wayland and the Seven Desktop.
+
+Major components still ahead:
+
+- permanent Seven init/service architecture
+- graphical stack and Seven Desktop
+- core applications
+- package management
+- installer and UEFI media
+- update/rollback infrastructure
+- recovery environment
+- production ISO/image generation
 
 ## Repository Direction
 
