@@ -2,8 +2,9 @@
 ConditionKernelCommandLine=!seven.recovery=1
 Description=Seven Desktop
 Documentation=https://github.com/gabriell211/Seven-OS
-After=systemd-udev-settle.service systemd-user-sessions.service dbus.service seven-wireplumber.service
+After=systemd-udev-settle.service systemd-user-sessions.service dbus.service seven-session-runtime.service seven-wireplumber.service
 Wants=systemd-udev-settle.service
+Requires=seven-session-runtime.service
 Conflicts=getty@tty1.service
 
 [Service]
