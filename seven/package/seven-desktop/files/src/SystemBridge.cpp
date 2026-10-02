@@ -54,7 +54,14 @@ bool SystemBridge::launch(const QString &program)
         return false;
     }
 
-    if (QProcess::startDetached(executable, {})) {
+    if (QProcess::startDetached(
+            QStringLiteral("/usr/bin/env"),
+            {
+                QStringLiteral("XDG_RUNTIME_DIR=/run/user/0"),
+                QStringLiteral("WAYLAND_DISPLAY=wayland-0"),
+                QStringLiteral("QT_QPA_PLATFORM=wayland"),
+                executable
+            })) {
         return true;
     }
 
@@ -69,7 +76,14 @@ bool SystemBridge::launchWindows(const QString &path)
         return false;
     }
 
-    if (QProcess::startDetached(QStringLiteral("/usr/bin/seven-winexec"), {executable})) {
+    if (QProcess::startDetached(
+            QStringLiteral("/usr/bin/env"),
+            {
+                QStringLiteral("XDG_RUNTIME_DIR=/run/user/0"),
+                QStringLiteral("WAYLAND_DISPLAY=wayland-0"),
+                QStringLiteral("/usr/bin/seven-winexec"),
+                executable
+            })) {
         return true;
     }
 
