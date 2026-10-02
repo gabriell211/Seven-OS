@@ -2,7 +2,7 @@
 ConditionKernelCommandLine=!seven.recovery=1
 Description=Seven Desktop
 Documentation=https://github.com/gabriell211/Seven-OS
-After=systemd-udev-settle.service systemd-user-sessions.service dbus.service seven-session-runtime.service seven-wireplumber.service
+After=systemd-udev-settle.service systemd-user-sessions.service dbus.service seven-session-runtime.service
 Wants=systemd-udev-settle.service
 Requires=seven-session-runtime.service
 Conflicts=getty@tty1.service
@@ -11,7 +11,7 @@ Conflicts=getty@tty1.service
 Type=simple
 User=seven
 Group=seven
-SupplementaryGroups=video render input audio
+SupplementaryGroups=video render input audio plugdev netdev
 RuntimeDirectory=seven
 RuntimeDirectoryMode=0700
 Environment=XDG_RUNTIME_DIR=/run/seven
