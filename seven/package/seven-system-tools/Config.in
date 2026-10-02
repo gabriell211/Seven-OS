@@ -8,6 +8,8 @@ config BR2_PACKAGE_SEVEN_SYSTEM_TOOLS
 	select BR2_PACKAGE_PARTED
 	select BR2_PACKAGE_E2FSPROGS
 	select BR2_PACKAGE_E2FSPROGS_RESIZE2FS
+	select BR2_PACKAGE_GPTFDISK
+	select BR2_PACKAGE_GPTFDISK_SGDISK
 	help
 	  Diagnostics, recovery utilities and guarded disk-image installer
 	  for Seven OS.
