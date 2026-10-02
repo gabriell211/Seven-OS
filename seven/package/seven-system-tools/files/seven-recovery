@@ -1,0 +1,53 @@
+#!/bin/sh
+set -eu
+
+usage() {
+	cat <<'EOF'
+Seven Recovery
+
+Usage:
+  seven-recovery status
+  seven-recovery failed-services
+  seven-recovery desktop-restart
+  seven-recovery network-restart
+  seven-recovery logs [lines]
+  seven-recovery windows-status
+EOF
+}
+
+command="${1:-status}"
+
+case "$command" in
+	status)
+		exec /usr/bin/seven-doctor
+		;;
+	failed-services)
+		exec systemctl --failed --no-pager
+		;;
+	desktop-restart)
+		systemctl restart seven-desktop.service
+		systemctl --no-pager --full status seven-desktop.service
+		;;
+	network-restart)
+		systemctl restart NetworkManager.service
+		systemctl --no-pager --full status NetworkManager.service
+		;;
+	logs)
+		lines="${2:-200}"
+		case "$lines" in
+			*[!0-9]*|"") echo "lines must be numeric" >&2; exit 2 ;;
+		esac
+		exec journalctl -b -n "$lines" --no-pager
+		;;
+	windows-status)
+		exec /usr/bin/seven-winexec --status
+		;;
+	-h|--help|help)
+		usage
+		;;
+	*)
+		echo "Unknown recovery command: $command" >&2
+		usage >&2
+		exit 2
+		;;
+esac
