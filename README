@@ -294,7 +294,7 @@ Implemented foundation:
 - reproducible build entrypoint
 - QEMU boot launcher
 - Seven WinExec Windows application layer
-- Wine 11.0 x86_64/WoW64 compatibility runtime
+- Wine 11.0 x86_64/new-WoW64 build integration for Win32 and Win64
 - NTSYNC and binfmt_misc kernel integration
 
 Build the current developer image with:
@@ -365,10 +365,13 @@ prefix management.
 
 The runtime interface is deliberately independent from Wine itself. This lets
 Seven update the compatibility runtime without changing how applications are
-launched. The bootstrap build now includes Wine 11.0 as the initial x86_64
-runtime and enables its new WoW64 architecture. Graphical Wayland/Vulkan,
-audio and gaming-specific integration will be added with the Seven Desktop
-stack.
+launched. The bootstrap build is configured to produce Wine 11.0 using its new
+WoW64 architecture for Win32 and Win64 PE applications. Seven also provides
+`seven-wininstall` for `.exe` and `.msi` installation.
+
+The full Wine cross-build and executable smoke test still need end-to-end
+validation. Graphical Windows applications will become usable when the
+Wayland/Vulkan desktop stack is introduced.
 
 ---
 
