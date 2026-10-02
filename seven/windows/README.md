@@ -41,11 +41,22 @@ upgraded independently.
 Seven currently targets **Wine 11.0**. Buildroot 2026.08 ships Wine 11.0 but
 normally restricts its target package to i386. During the Seven build,
 `scripts/patch-buildroot-wine.py` applies a narrow, version-aware adjustment
-that enables the package for x86_64 and changes the target build to
-`--enable-win64`.
+that enables the package for the Seven x86_64 target and configures Wine's new
+WoW64 build with:
 
-The resulting Seven x86_64 image is expected to contain `/usr/bin/wine` plus
-`seven-winexec`. The build fails if either executable is missing.
+```text
+--enable-archs=x86_64,i386
+--with-mingw=llvm-mingw
+```
+
+The build downloads a pinned LLVM-MinGW 20260922 UCRT toolchain, validates its
+SHA-256, and exposes both the i686 and x86_64 PE compilers to Wine. This lets a
+64-bit Seven userspace build the PE components needed for both Win32 and Win64
+applications without requiring a 32-bit Seven userspace.
+
+The resulting image is required to contain `/usr/bin/wine`,
+`/usr/bin/seven-winexec` and `/usr/bin/seven-wininstall`. The build aborts
+if any of them is missing.
 
 This is the initial non-graphical runtime foundation. Wayland, Vulkan, audio,
 fonts and gaming-specific integrations will be enabled as the Seven Desktop
@@ -76,9 +87,17 @@ SEVEN_WINDOWS_PREFIX="$HOME/.local/share/seven/windows/apps/example" \
 This prevents one Windows application's registry and dependencies from
 corrupting another application's environment.
 
-## Diagnostics
+## Usage
 
 ```sh
+# Install Windows software
+seven-wininstall setup.exe
+seven-wininstall package.msi
+
+# Execute a Windows application
+seven-winexec application.exe
+
+# Inspect compatibility status and prefix selection
 seven-winexec --status
 seven-winexec --prefix setup.exe
 seven-winexec --version
