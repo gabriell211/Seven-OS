@@ -222,10 +222,10 @@ bool SystemInfo::launch(const QString &program)
 
 void SystemInfo::powerOff()
 {
-    QProcess::startDetached(QStringLiteral("/bin/systemctl"), {QStringLiteral("poweroff")});
+    QProcess::startDetached(QStringLiteral("/usr/bin/loginctl"), {QStringLiteral("poweroff")});
 }
 
 void SystemInfo::reboot()
 {
-    QProcess::startDetached(QStringLiteral("/bin/systemctl"), {QStringLiteral("reboot")});
+    QProcess::startDetached(QStringLiteral("/usr/bin/loginctl"), {QStringLiteral("reboot")});
 }
