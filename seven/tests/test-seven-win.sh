@@ -4,10 +4,11 @@ set -Eeuo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 WINEXEC="$ROOT_DIR/seven/package/seven-win/files/seven-winexec"
 chmod +x "$WINEXEC"
+
 TMP="$(mktemp -d)"
 
 cleanup() {
-	rm -rf "$TMP"
+    rm -rf "$TMP"
 }
 trap cleanup EXIT
 
@@ -47,8 +48,7 @@ override_output="$(SEVEN_WINDOWS_PREFIX="$override_prefix" "$WINEXEC" "$TMP/apps
 grep -q "^WINEPREFIX=$override_prefix$" <<<"$override_output"
 
 forced_output="$(SEVEN_WINDOWS_ARCH=wow64 "$WINEXEC" "$TMP/apps/demo.exe")"
-grep -q '^WINEARCH=wow64
- <<<"$forced_output"
+grep -q '^WINEARCH=wow64$' <<<"$forced_output"
 
 installer_prefix="$("$WINEXEC" --prefix "$TMP/apps/setup.msi")"
 mkdir -p "$installer_prefix/drive_c/Program Files/Seven Test"
