@@ -9,7 +9,7 @@ SEVEN_DESKTOP_SITE = $(BR2_EXTERNAL_SEVEN_PATH)/package/seven-desktop/files
 SEVEN_DESKTOP_SITE_METHOD = local
 SEVEN_DESKTOP_LICENSE = MIT
 SEVEN_DESKTOP_LICENSE_FILES = LICENSE
-SEVEN_DESKTOP_DEPENDENCIES = qt6base qt6declarative qt6wayland qt6svg
+SEVEN_DESKTOP_DEPENDENCIES = qt6base qt6declarative qt6wayland qt6svg dbus pipewire wireplumber
 
 define SEVEN_DESKTOP_USERS
 	- - video -1 - - - - -
@@ -18,6 +18,12 @@ define SEVEN_DESKTOP_USERS
 	- - audio -1 - - - - -
 	seven 1000 seven 1000 * /home/seven /bin/sh video,render,input,audio Seven Desktop User
 endef
+
+define SEVEN_DESKTOP_INSTALL_SESSION
+	$(INSTALL) -D -m 0755 $(@D)/seven-session \
+		$(TARGET_DIR)/usr/bin/seven-session
+endef
+SEVEN_DESKTOP_POST_INSTALL_TARGET_HOOKS += SEVEN_DESKTOP_INSTALL_SESSION
 
 define SEVEN_DESKTOP_INSTALL_INIT_SYSV
 	$(INSTALL) -D -m 0755 $(@D)/S70seven-desktop \
