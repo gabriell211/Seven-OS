@@ -47,6 +47,11 @@ double SystemBridge::diskPercent() const
     return m_diskPercent;
 }
 
+bool SystemBridge::windowsRuntimeAvailable() const
+{
+    return m_windowsRuntimeAvailable;
+}
+
 bool SystemBridge::launch(const QString &program)
 {
     const QString executable = program.trimmed();
@@ -100,7 +105,7 @@ void SystemBridge::refreshMetrics()
 
         if (fields.size() >= 5 && fields[0] == QStringLiteral("cpu")) {
             quint64 values[10]{};
-            const int valueCount = std::min(10, fields.size() - 1);
+            const int valueCount = std::min(10, static_cast<int>(fields.size() - 1));
 
             for (int i = 0; i < valueCount; ++i) {
                 bool ok = false;
@@ -172,6 +177,10 @@ void SystemBridge::refreshMetrics()
         }
     }
 
+    m_windowsRuntimeAvailable =
+        QFile::exists(QStringLiteral("/usr/bin/wine")) &&
+        QFile::exists(QStringLiteral("/usr/bin/seven-winexec"));
+
     const QStorageInfo root = QStorageInfo::root();
     if (root.isValid() && root.bytesTotal() > 0) {
         const auto used = root.bytesTotal() - root.bytesAvailable();
@@ -187,10 +196,10 @@ void SystemBridge::refreshMetrics()
 
 void SystemBridge::powerOff()
 {
-    QProcess::startDetached(QStringLiteral("/sbin/poweroff"), {});
+    QProcess::startDetached(QStringLiteral("/bin/systemctl"), {QStringLiteral("poweroff")});
 }
 
 void SystemBridge::reboot()
 {
-    QProcess::startDetached(QStringLiteral("/sbin/reboot"), {});
+    QProcess::startDetached(QStringLiteral("/bin/systemctl"), {QStringLiteral("reboot")});
 }
