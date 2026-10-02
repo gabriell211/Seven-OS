@@ -1,0 +1,27 @@
+[Unit]
+Description=Seven Desktop
+Documentation=https://github.com/gabriell211/Seven-OS
+After=systemd-udev-settle.service systemd-user-sessions.service dbus.service
+Wants=systemd-udev-settle.service
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+Environment=XDG_RUNTIME_DIR=/run/user/0
+Environment=QT_QPA_PLATFORM=eglfs
+Environment=QT_QPA_EGLFS_ALWAYS_SET_MODE=1
+Environment=QT_LOGGING_RULES=qt.qpa.*=false
+Environment=XDG_SESSION_TYPE=wayland
+Environment=XDG_CURRENT_DESKTOP=Seven
+ExecStartPre=/usr/bin/mkdir -p /run/user/0
+ExecStartPre=/usr/bin/chmod 0700 /run/user/0
+ExecStart=/usr/bin/seven-desktop
+Restart=on-failure
+RestartSec=2
+TTYPath=/dev/tty1
+StandardInput=tty
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=graphical.target
