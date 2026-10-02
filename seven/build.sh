@@ -34,6 +34,42 @@ verify_sha256() {
     printf '%s  %s\n' "$expected" "$file" | sha256sum -c - >/dev/null 2>&1
 }
 
+restore_source_executable_bits() {
+    echo "[Seven] Restoring executable bits for imported source scripts..."
+
+    python3 - "$ROOT_DIR" <<'PY'
+from pathlib import Path
+import stat
+import sys
+
+root = Path(sys.argv[1]).resolve()
+
+for path in root.rglob("*"):
+    if not path.is_file():
+        continue
+
+    try:
+        relative = path.relative_to(root)
+    except ValueError:
+        continue
+
+    if ".git" in relative.parts:
+        continue
+
+    try:
+        with path.open("rb") as handle:
+            if handle.read(2) != b"#!":
+                continue
+
+        mode = path.stat().st_mode
+        wanted = mode | stat.S_IXUSR
+        if wanted != mode:
+            path.chmod(wanted)
+    except OSError:
+        continue
+PY
+}
+
 prepare_llvm_mingw() {
     if [ -n "${SEVEN_LLVM_MINGW_DIR:-}" ]; then
         echo "[Seven] Using custom LLVM-MinGW: $LLVM_MINGW_DIR"
@@ -81,6 +117,8 @@ for cmd in git make gcc g++ bc bison flex perl python3 rsync cpio gzip patch tar
 done
 
 mkdir -p "$BUILD_ROOT" "$KERNEL_OUT" "$BUILDROOT_OUT"
+
+restore_source_executable_bits
 
 echo "[Seven] Configuring kernel..."
 make -C "$ROOT_DIR" O="$KERNEL_OUT" x86_64_defconfig
