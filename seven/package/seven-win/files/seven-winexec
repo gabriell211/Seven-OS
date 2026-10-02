@@ -101,17 +101,26 @@ base="$(basename "$resolved")"
 safe_base="$(printf '%s' "$base" | tr -c 'A-Za-z0-9._-' '_')"
 path_id="$(printf '%s' "$resolved" | cksum | awk '{print $1}')"
 
+if [ -n "${SEVEN_WINDOWS_PREFIX_ROOT:-}" ]; then
+	prefix_root="$SEVEN_WINDOWS_PREFIX_ROOT"
+else
+	data_home="${XDG_DATA_HOME:-${HOME:-/tmp}/.local/share}"
+	prefix_root="$data_home/seven/windows/apps"
+fi
+
 if [ -n "${SEVEN_WINDOWS_PREFIX:-}" ]; then
 	prefix="$SEVEN_WINDOWS_PREFIX"
 else
-	if [ -n "${SEVEN_WINDOWS_PREFIX_ROOT:-}" ]; then
-		prefix_root="$SEVEN_WINDOWS_PREFIX_ROOT"
-	else
-		data_home="${XDG_DATA_HOME:-${HOME:-/tmp}/.local/share}"
-		prefix_root="$data_home/seven/windows/apps"
-	fi
-
-	prefix="$prefix_root/${safe_base}-${path_id}"
+	case "$resolved" in
+		"$prefix_root"/*/drive_c/*)
+			relative="${resolved#"$prefix_root"/}"
+			prefix_name="${relative%%/drive_c/*}"
+			prefix="$prefix_root/$prefix_name"
+			;;
+		*)
+			prefix="$prefix_root/${safe_base}-${path_id}"
+			;;
+	esac
 fi
 
 if [ "$mode" = "prefix" ]; then
