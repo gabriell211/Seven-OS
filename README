@@ -335,6 +335,31 @@ Seven-specific components may have their own license files where appropriate, bu
 
 See `COPYING` and the relevant source-file SPDX headers for details.
 
+Aplicativo Windows
+    .exe / .msi
+        ↓
+Seven WinExec
+        ↓
+detecção PE32 / PE32+
+        ↓
+Seven Windows Runtime
+        ↓
+Wine 11 / WoW64
+        ↓
+Win32 / NT APIs
+        ↓
+┌──────────────────────────────┐
+│ USER32 / GDI32 / COM / etc. │
+│ DirectX → Vulkan            │
+│ WinSock → sockets Seven     │
+│ Windows FS → Seven VFS      │
+│ Registry → prefix           │
+└──────────────────────────────┘
+        ↓
+Seven userspace
+        ↓
+Seven Kernel
+
 ---
 
 **Seven OS** — a complete desktop operating system built with its own identity on a proven Linux foundation.
