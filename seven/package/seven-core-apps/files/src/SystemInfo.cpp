@@ -57,6 +57,11 @@ bool SystemInfo::windowsRuntimeAvailable() const
     return m_windowsRuntimeAvailable;
 }
 
+QString SystemInfo::networkState() const
+{
+    return m_networkState;
+}
+
 void SystemInfo::refresh()
 {
     QFile stat(QStringLiteral("/proc/stat"));
@@ -172,6 +177,21 @@ void SystemInfo::refresh()
     m_windowsRuntimeAvailable =
         QFile::exists(QStringLiteral("/usr/bin/wine")) &&
         QFile::exists(QStringLiteral("/usr/bin/seven-winexec"));
+
+    QProcess network;
+    network.start(
+        QStringLiteral("/usr/bin/nmcli"),
+        {QStringLiteral("-t"), QStringLiteral("-f"), QStringLiteral("STATE"), QStringLiteral("general")}
+    );
+    if (network.waitForFinished(1200)) {
+        m_networkState = QString::fromUtf8(network.readAllStandardOutput()).trimmed();
+    } else {
+        network.kill();
+        m_networkState = QStringLiteral("indisponível");
+    }
+    if (m_networkState.isEmpty()) {
+        m_networkState = QStringLiteral("indisponível");
+    }
 
     emit changed();
 }
