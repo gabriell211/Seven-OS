@@ -12,7 +12,16 @@ SEVEN_DESKTOP_LICENSE_FILES = LICENSE
 SEVEN_DESKTOP_DEPENDENCIES = qt6base qt6declarative qt6wayland qt6svg
 
 define SEVEN_DESKTOP_INSTALL_INIT_SYSV
-	$(INSTALL) -D -m 0755 $(@D)/S70seven-desktop 		$(TARGET_DIR)/etc/init.d/S70seven-desktop
+	$(INSTALL) -D -m 0755 $(@D)/S70seven-desktop \
+		$(TARGET_DIR)/etc/init.d/S70seven-desktop
+endef
+
+define SEVEN_DESKTOP_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 0644 $(@D)/seven-desktop.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/seven-desktop.service
+	mkdir -p $(TARGET_DIR)/etc/systemd/system/graphical.target.wants
+	ln -sf /usr/lib/systemd/system/seven-desktop.service \
+		$(TARGET_DIR)/etc/systemd/system/graphical.target.wants/seven-desktop.service
 endef
 
 $(eval $(cmake-package))
