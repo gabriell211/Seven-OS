@@ -57,7 +57,7 @@ bool SystemBridge::launch(const QString &program)
     if (QProcess::startDetached(
             QStringLiteral("/usr/bin/env"),
             {
-                QStringLiteral("XDG_RUNTIME_DIR=/run/user/0"),
+                QStringLiteral("XDG_RUNTIME_DIR=/run/seven"),
                 QStringLiteral("WAYLAND_DISPLAY=wayland-0"),
                 QStringLiteral("QT_QPA_PLATFORM=wayland"),
                 executable
@@ -79,7 +79,7 @@ bool SystemBridge::launchWindows(const QString &path)
     if (QProcess::startDetached(
             QStringLiteral("/usr/bin/env"),
             {
-                QStringLiteral("XDG_RUNTIME_DIR=/run/user/0"),
+                QStringLiteral("XDG_RUNTIME_DIR=/run/seven"),
                 QStringLiteral("WAYLAND_DISPLAY=wayland-0"),
                 QStringLiteral("/usr/bin/seven-winexec"),
                 executable
