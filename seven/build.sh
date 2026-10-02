@@ -240,6 +240,7 @@ for required in \
     BR2_PACKAGE_KMOD_TOOLS=y \
     BR2_PACKAGE_QT6WAYLAND_COMPOSITOR=y \
     BR2_INIT_SYSTEMD=y \
+    BR2_PACKAGE_SYSTEMD_BINFMT=y \
     BR2_TARGET_GRUB2_X86_64_EFI=y \
     BR2_TARGET_ROOTFS_EXT2_4=y; do
     grep -qx "$required" "$BUILDROOT_OUT/.config" || \
