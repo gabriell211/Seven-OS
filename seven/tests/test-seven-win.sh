@@ -15,7 +15,7 @@ mkdir -p "$TMP/bin" "$TMP/home" "$TMP/apps"
 cat > "$TMP/bin/wine" <<'EOF'
 #!/bin/sh
 printf '%s\n' "WINEPREFIX=$WINEPREFIX"
-printf '%s\n' "WINEARCH=$WINEARCH"
+printf '%s\n' "WINEARCH=${WINEARCH-}"
 printf 'ARGS='
 printf '<%s>' "$@"
 printf '\n'
@@ -34,11 +34,18 @@ msi_output="$("$WINEXEC" "$TMP/apps/setup.msi" /quiet)"
 prefix_one="$("$WINEXEC" --prefix "$TMP/apps/demo.exe")"
 prefix_two="$("$WINEXEC" --prefix "$TMP/apps/demo.exe")"
 
-grep -q 'WINEARCH=wow64' <<<"$exe_output"
+grep -q '^WINEARCH=$' <<<"$exe_output"
 grep -q '<.*demo.exe><--hello><Seven OS>' <<<"$exe_output"
 grep -q '<msiexec></i><.*setup.msi></quiet>' <<<"$msi_output"
 
 [[ "$prefix_one" == "$prefix_two" ]]
 [[ "$prefix_one" == *"/seven/windows/apps/demo.exe-"* ]]
+
+override_prefix="$TMP/custom-prefix"
+override_output="$(SEVEN_WINDOWS_PREFIX="$override_prefix" "$WINEXEC" "$TMP/apps/demo.exe")"
+grep -q "^WINEPREFIX=$override_prefix$" <<<"$override_output"
+
+forced_output="$(SEVEN_WINDOWS_ARCH=wow64 "$WINEXEC" "$TMP/apps/demo.exe")"
+grep -q '^WINEARCH=wow64$' <<<"$forced_output"
 
 printf 'seven-win tests: PASS\n'
