@@ -53,8 +53,8 @@ the kernel primitives required for Windows compatibility:
 - isolated per-application runtime prefixes
 
 The Wine runtime is deliberately kept replaceable behind `seven-winexec`.
-The bootstrap image currently provides the integration layer; the full Wine
-11.x graphical runtime will be attached when the Wayland/Vulkan desktop
-dependency set is introduced.
+The bootstrap image now builds Wine 11.0 for the Seven x86_64 target using the
+new WoW64 architecture. The current runtime is intentionally minimal; graphical
+Wayland/Vulkan, audio and gaming integrations will be layered on in Phase 2.
 
 See [windows/README.md](windows/README.md).
