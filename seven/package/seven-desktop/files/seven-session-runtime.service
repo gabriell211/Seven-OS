@@ -1,0 +1,13 @@
+[Unit]
+Description=Seven Session Runtime Directory
+Before=seven-pipewire.service seven-wireplumber.service seven-desktop.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/mkdir -p /run/seven
+ExecStart=/bin/chown seven:seven /run/seven
+ExecStart=/bin/chmod 0700 /run/seven
+RemainAfterExit=yes
+
+[Install]
+WantedBy=graphical.target
