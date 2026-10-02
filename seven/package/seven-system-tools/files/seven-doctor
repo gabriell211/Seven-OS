@@ -1,0 +1,82 @@
+#!/bin/sh
+set -u
+
+pass=0
+warn=0
+fail=0
+
+ok() {
+	printf '[ OK ] %s\n' "$1"
+	pass=$((pass + 1))
+}
+
+warning() {
+	printf '[WARN] %s\n' "$1"
+	warn=$((warn + 1))
+}
+
+bad() {
+	printf '[FAIL] %s\n' "$1"
+	fail=$((fail + 1))
+}
+
+check_file() {
+	if [ -e "$1" ]; then
+		ok "$2"
+	else
+		bad "$2"
+	fi
+}
+
+printf 'Seven Doctor\n'
+printf '============\n'
+
+if [ "$(uname -s 2>/dev/null)" = "Seven" ]; then
+	ok "Seven Kernel identity"
+else
+	warning "Kernel identity is not Seven"
+fi
+
+check_file /etc/os-release "Seven userspace identity"
+check_file /usr/bin/seven-desktop "Seven Desktop"
+check_file /usr/bin/seven-files "Seven Files"
+check_file /usr/bin/seven-settings "Seven Settings"
+check_file /usr/bin/seven-store "Seven Store"
+check_file /usr/bin/seven-monitor "Seven System Monitor"
+check_file /usr/bin/seven-winexec "Seven Windows launcher"
+
+if [ -e /dev/dri/card0 ]; then
+	ok "DRM graphics device"
+else
+	warning "No DRM card detected"
+fi
+
+if systemctl is-active --quiet seven-desktop.service 2>/dev/null; then
+	ok "Seven Desktop service"
+else
+	warning "Seven Desktop service is not active"
+fi
+
+if systemctl is-active --quiet NetworkManager.service 2>/dev/null; then
+	ok "NetworkManager"
+else
+	warning "NetworkManager is not active"
+fi
+
+if command -v seven-winexec >/dev/null 2>&1; then
+	if seven-winexec --status 2>/dev/null | grep -q 'Windows runtime: available'; then
+		ok "Windows compatibility runtime"
+	else
+		warning "Windows compatibility runtime is incomplete"
+	fi
+fi
+
+if [ -e /dev/ntsync ]; then
+	ok "NTSYNC"
+else
+	warning "NTSYNC device is unavailable"
+fi
+
+printf '\nSummary: %s ok, %s warnings, %s failures\n' "$pass" "$warn" "$fail"
+
+[ "$fail" -eq 0 ]
