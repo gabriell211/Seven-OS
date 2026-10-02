@@ -21,7 +21,7 @@ Environment=XDG_SESSION_TYPE=wayland
 Environment=XDG_CURRENT_DESKTOP=Seven
 Environment=HOME=/home/seven
 WorkingDirectory=/home/seven
-ExecStart=/usr/bin/seven-desktop
+ExecStart=/usr/bin/dbus-run-session -- /usr/bin/seven-session
 Restart=on-failure
 RestartSec=2
 TTYPath=/dev/tty1
