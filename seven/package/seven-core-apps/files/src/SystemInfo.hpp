@@ -14,6 +14,7 @@ class SystemInfo final : public QObject
     Q_PROPERTY(double memoryPercent READ memoryPercent NOTIFY changed)
     Q_PROPERTY(double diskPercent READ diskPercent NOTIFY changed)
     Q_PROPERTY(bool windowsRuntimeAvailable READ windowsRuntimeAvailable NOTIFY changed)
+    Q_PROPERTY(QString networkState READ networkState NOTIFY changed)
 
 public:
     explicit SystemInfo(QObject *parent = nullptr);
@@ -26,6 +27,7 @@ public:
     [[nodiscard]] double memoryPercent() const;
     [[nodiscard]] double diskPercent() const;
     [[nodiscard]] bool windowsRuntimeAvailable() const;
+    [[nodiscard]] QString networkState() const;
 
     Q_INVOKABLE void refresh();
     Q_INVOKABLE bool launch(const QString &program);
@@ -44,4 +46,5 @@ private:
     double m_memoryPercent{0.0};
     double m_diskPercent{0.0};
     bool m_windowsRuntimeAvailable{false};
+    QString m_networkState;
 };
