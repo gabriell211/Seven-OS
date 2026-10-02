@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/0}"
+export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
+
+exec /usr/bin/foot --config=/etc/foot/foot.ini /bin/sh -l
