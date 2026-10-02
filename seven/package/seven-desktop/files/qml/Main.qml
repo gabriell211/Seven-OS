@@ -23,6 +23,10 @@ WaylandCompositor {
         }
     }
 
+    XdgDecorationManagerV1 {
+        preferredMode: XdgToplevel.ServerSideDecoration
+    }
+
     WaylandOutput {
         sizeFollowsWindow: true
 
