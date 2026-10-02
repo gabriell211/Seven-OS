@@ -19,7 +19,7 @@ WaylandCompositor {
 
     XdgShell {
         onToplevelCreated: (toplevel, xdgSurface) => {
-            shellSurfaces.append({ shellSurface: xdgSurface })
+            shellSurfaces.append({ surface: xdgSurface })
         }
     }
 
@@ -79,25 +79,37 @@ WaylandCompositor {
                 Repeater {
                     model: shellSurfaces
 
-                    ShellSurfaceItem {
-                        id: surfaceItem
+                    delegate: Item {
+                        id: windowFrame
 
-                        shellSurface: modelData
+                        required property var surface
+                        required property int index
+
                         x: 44 + (index % 5) * 28
                         y: 74 + (index % 4) * 24
                         width: Math.min(820, clientArea.width - 80)
                         height: Math.min(560, clientArea.height - 100)
 
-                        onSurfaceDestroyed: shellSurfaces.remove(index)
-
                         Rectangle {
                             anchors.fill: parent
-                            anchors.margins: -1
-                            color: "transparent"
+                            color: "#080b14"
                             border.width: 1
                             border.color: "#467bd0"
                             radius: 10
-                            z: -1
+                        }
+
+                        ShellSurfaceItem {
+                            id: surfaceItem
+                            anchors.fill: parent
+                            anchors.margins: 1
+                            shellSurface: windowFrame.surface
+                            moveItem: windowFrame
+
+                            onSurfaceDestroyed: {
+                                if (windowFrame.index >= 0 && windowFrame.index < shellSurfaces.count) {
+                                    shellSurfaces.remove(windowFrame.index)
+                                }
+                            }
                         }
                     }
                 }
@@ -445,15 +457,12 @@ WaylandCompositor {
 
                     Repeater {
                         model: [
-                            ["7", "#147cff"],
-                            ["▰", "#f5b536"],
-                            ["◉", "#1ebcff"],
-                            ["✉", "#5796ff"],
-                            ["▶", "#9b42e8"],
-                            ["{ }", "#2589ff"],
-                            ["▣", "#4ea4ff"],
-                            ["⚙", "#cad7ec"],
-                            ["▥", "#4aa7ff"]
+                            { glyph: "7", color: "#147cff", command: "" },
+                            { glyph: "▰", color: "#f5b536", command: "seven-files" },
+                            { glyph: "▤", color: "#1ebcff", command: "seven-terminal" },
+                            { glyph: "▣", color: "#5796ff", command: "seven-store" },
+                            { glyph: "⚙", color: "#cad7ec", command: "seven-settings" },
+                            { glyph: "▥", color: "#4aa7ff", command: "seven-monitor" }
                         ]
 
                         Rectangle {
@@ -465,8 +474,8 @@ WaylandCompositor {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: modelData[0]
-                                color: modelData[1]
+                                text: modelData.glyph
+                                color: modelData.color
                                 font.pixelSize: 22
                                 font.bold: true
                             }
@@ -475,6 +484,11 @@ WaylandCompositor {
                                 id: mouse
                                 anchors.fill: parent
                                 hoverEnabled: true
+                                onClicked: {
+                                    if (modelData.command !== "") {
+                                        SevenSystem.launch(modelData.command)
+                                    }
+                                }
                             }
                         }
                     }
