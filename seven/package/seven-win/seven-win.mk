@@ -15,8 +15,8 @@ define SEVEN_WIN_INSTALL_TARGET_CMDS
 		$(TARGET_DIR)/usr/bin/seven-winexec
 	$(INSTALL) -D -m 0755 $(@D)/seven-wininstall \
 		$(TARGET_DIR)/usr/bin/seven-wininstall
-	$(INSTALL) -D -m 0755 $(@D)/S40seven-win \
-		$(TARGET_DIR)/etc/init.d/S40seven-win
+	$(INSTALL) -D -m 0644 $(@D)/70-seven-win.conf \
+		$(TARGET_DIR)/usr/lib/binfmt.d/70-seven-win.conf
 	$(INSTALL) -D -m 0644 $(@D)/seven-windows.conf \
 		$(TARGET_DIR)/etc/seven/seven-windows.conf
 endef
