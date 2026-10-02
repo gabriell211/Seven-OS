@@ -1,0 +1,10 @@
+config BR2_PACKAGE_GTK_LAYER_SHELL
+	bool "gtk-layer-shell"
+	depends on BR2_PACKAGE_LIBGTK3
+	depends on BR2_PACKAGE_LIBGTK3_WAYLAND
+	depends on !BR2_STATIC_LIBS
+	select BR2_PACKAGE_WAYLAND
+	select BR2_PACKAGE_WAYLAND_PROTOCOLS
+	help
+	  GTK3 library implementing the Wayland layer-shell protocol.
+	  Seven Shell uses it for the desktop background, panel and launcher.
