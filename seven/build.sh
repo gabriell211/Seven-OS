@@ -71,6 +71,7 @@ prepare_llvm_mingw() {
     [ -x "$LLVM_MINGW_DIR/bin/x86_64-w64-mingw32-clang" ] || \
         die "LLVM-MinGW x86_64 compiler not found in $LLVM_MINGW_DIR"
 
+    export SEVEN_LLVM_MINGW_DIR="$LLVM_MINGW_DIR"
     export PATH="$LLVM_MINGW_DIR/bin:$PATH"
 }
 
