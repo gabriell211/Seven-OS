@@ -104,6 +104,15 @@ make -C "$ROOT_DIR" O="$KERNEL_OUT" x86_64_defconfig
     -e INPUT_EVDEV \
     -e DRM \
     -e DRM_VIRTIO_GPU \
+    -e CFG80211 \
+    -e MAC80211 \
+    -e RFKILL \
+    -e BT \
+    -e BT_HCIBTUSB \
+    -e SND \
+    -e SND_HDA_INTEL \
+    -e SND_HDA_CODEC_GENERIC \
+    -e SND_HDA_CODEC_HDMI \
     -e VT \
     -e VT_CONSOLE \
     -e FRAMEBUFFER_CONSOLE \
@@ -151,6 +160,8 @@ for required in \
     BR2_PACKAGE_SEVEN_DESKTOP=y \
     BR2_PACKAGE_SEVEN_CORE_APPS=y \
     BR2_PACKAGE_FOOT=y \
+    BR2_PACKAGE_NETWORK_MANAGER=y \
+    BR2_PACKAGE_PIPEWIRE=y \
     BR2_PACKAGE_QT6WAYLAND_COMPOSITOR=y; do
     grep -qx "$required" "$BUILDROOT_OUT/.config" || \
         die "Required userspace feature missing: $required"
