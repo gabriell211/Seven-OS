@@ -57,6 +57,30 @@ bool SystemInfo::windowsRuntimeAvailable() const
     return m_windowsRuntimeAvailable;
 }
 
+QString SystemInfo::networkState() const
+{
+    return m_networkState;
+}
+
+bool SystemInfo::launch(const QString &program)
+{
+    const QString executable = program.trimmed();
+    if (executable.isEmpty()) {
+        return false;
+    }
+
+    return QProcess::startDetached(
+        QStringLiteral("/usr/bin/env"),
+        {
+            QStringLiteral("XDG_RUNTIME_DIR=/run/user/0"),
+            QStringLiteral("WAYLAND_DISPLAY=wayland-0"),
+            QStringLiteral("QT_QPA_PLATFORM=wayland"),
+            QStringLiteral("XDG_CURRENT_DESKTOP=Seven"),
+            executable
+        }
+    );
+}
+
 void SystemInfo::refresh()
 {
     QFile stat(QStringLiteral("/proc/stat"));
@@ -180,15 +204,31 @@ void SystemInfo::refresh()
         QFile::exists(QStringLiteral("/usr/bin/wine")) &&
         QFile::exists(QStringLiteral("/usr/bin/seven-winexec"));
 
+    QProcess network;
+    network.start(
+        QStringLiteral("/usr/bin/nmcli"),
+        {QStringLiteral("-t"), QStringLiteral("-f"), QStringLiteral("STATE"), QStringLiteral("general")}
+    );
+    if (network.waitForFinished(1200)) {
+        m_networkState = QString::fromUtf8(network.readAllStandardOutput()).trimmed();
+    } else {
+        network.kill();
+        m_networkState = QStringLiteral("indisponível");
+    }
+
+    if (m_networkState.isEmpty()) {
+        m_networkState = QStringLiteral("indisponível");
+    }
+
     emit changed();
 }
 
 void SystemInfo::powerOff()
 {
-    QProcess::startDetached(QStringLiteral("/sbin/poweroff"), {});
+    QProcess::startDetached(QStringLiteral("/bin/systemctl"), {QStringLiteral("poweroff")});
 }
 
 void SystemInfo::reboot()
 {
-    QProcess::startDetached(QStringLiteral("/sbin/reboot"), {});
+    QProcess::startDetached(QStringLiteral("/bin/systemctl"), {QStringLiteral("reboot")});
 }
