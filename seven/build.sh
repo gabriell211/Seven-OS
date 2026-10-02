@@ -258,9 +258,7 @@ for required_file in \
     "$BUILDROOT_OUT/target/usr/bin/seven-recovery" \
     "$BUILDROOT_OUT/target/usr/bin/seven-image-install" \
     "$BUILDROOT_OUT/target/usr/bin/seven-image-verify" \
-    "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-desktop.service" \
-    "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-pipewire.service" \
-    "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-wireplumber.service"; do
+    "$BUILDROOT_OUT/target/usr/lib/systemd/system/seven-desktop.service" \"; do
     if [[ "$required_file" == *.service ]]; then
         [ -f "$required_file" ] || die "Required systemd unit missing: $required_file"
     else
