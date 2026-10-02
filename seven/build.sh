@@ -84,6 +84,15 @@ done
 echo "[Seven] Building Seven userspace..."
 make -C "$BUILDROOT_SRC" O="$BUILDROOT_OUT" -j"$JOBS"
 
+for required_file in \
+    "$BUILDROOT_OUT/target/usr/bin/wine" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-winexec"; do
+    [ -x "$required_file" ] || {
+        echo "[Seven] Required runtime file missing: $required_file" >&2
+        exit 1
+    }
+done
+
 IMAGES="$BUILD_ROOT/images"
 mkdir -p "$IMAGES"
 
