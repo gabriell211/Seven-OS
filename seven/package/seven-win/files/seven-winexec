@@ -11,7 +11,7 @@ fi
 SEVEN_WINDOWS_ENABLED="${SEVEN_WINDOWS_ENABLED:-1}"
 SEVEN_WINDOWS_WINE_BINARY="${SEVEN_WINE_BINARY:-${SEVEN_WINDOWS_WINE_BINARY:-wine}}"
 SEVEN_WINDOWS_DEBUG="${SEVEN_WINDOWS_DEBUG:--all}"
-SEVEN_WINDOWS_ARCH="${SEVEN_WINDOWS_ARCH:-wow64}"
+SEVEN_WINDOWS_ARCH="${SEVEN_WINDOWS_ARCH:-}"
 
 die() {
 	printf 'seven-win: %s\n' "$*" >&2
@@ -126,7 +126,12 @@ command -v "$SEVEN_WINDOWS_WINE_BINARY" >/dev/null 2>&1 || {
 mkdir -p "$prefix"
 
 export WINEPREFIX="$prefix"
-export WINEARCH="$SEVEN_WINDOWS_ARCH"
+if [ -n "$SEVEN_WINDOWS_ARCH" ]; then
+	export WINEARCH="$SEVEN_WINDOWS_ARCH"
+else
+	unset WINEARCH 2>/dev/null || true
+fi
+
 export WINEDEBUG="${WINEDEBUG:-$SEVEN_WINDOWS_DEBUG}"
 export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-winemenubuilder.exe=d}"
 
