@@ -100,13 +100,25 @@ make -C "$ROOT_DIR" O="$KERNEL_OUT" x86_64_defconfig
     -e VIRTIO \
     -e VIRTIO_PCI \
     -e VIRTIO_NET \
+    -e VIRTIO_INPUT \
+    -e INPUT_EVDEV \
+    -e DRM \
+    -e DRM_VIRTIO_GPU \
+    -e VT \
+    -e VT_CONSOLE \
+    -e FRAMEBUFFER_CONSOLE \
     -e BINFMT_SCRIPT \
     -e BINFMT_MISC \
     -e NTSYNC
 
 make -C "$ROOT_DIR" O="$KERNEL_OUT" olddefconfig
 
-for required in CONFIG_BINFMT_MISC=y CONFIG_NTSYNC=y; do
+for required in \
+    CONFIG_BINFMT_MISC=y \
+    CONFIG_NTSYNC=y \
+    CONFIG_DRM=y \
+    CONFIG_DRM_VIRTIO_GPU=y \
+    CONFIG_VIRTIO_INPUT=y; do
     grep -qx "$required" "$KERNEL_OUT/.config" || \
         die "Required kernel feature missing: $required"
 done
@@ -133,7 +145,11 @@ make -C "$BUILDROOT_SRC" \
     BR2_EXTERNAL="$SEVEN_DIR" \
     seven_x86_64_defconfig
 
-for required in BR2_PACKAGE_SEVEN_WIN=y BR2_PACKAGE_WINE=y; do
+for required in \
+    BR2_PACKAGE_SEVEN_WIN=y \
+    BR2_PACKAGE_WINE=y \
+    BR2_PACKAGE_SEVEN_DESKTOP=y \
+    BR2_PACKAGE_QT6WAYLAND_COMPOSITOR=y; do
     grep -qx "$required" "$BUILDROOT_OUT/.config" || \
         die "Required userspace feature missing: $required"
 done
@@ -144,7 +160,8 @@ make -C "$BUILDROOT_SRC" O="$BUILDROOT_OUT" -j"$JOBS"
 for required_file in \
     "$BUILDROOT_OUT/target/usr/bin/wine" \
     "$BUILDROOT_OUT/target/usr/bin/seven-winexec" \
-    "$BUILDROOT_OUT/target/usr/bin/seven-wininstall"; do
+    "$BUILDROOT_OUT/target/usr/bin/seven-wininstall" \
+    "$BUILDROOT_OUT/target/usr/bin/seven-desktop"; do
     [ -x "$required_file" ] || die "Required runtime file missing: $required_file"
 done
 
@@ -163,6 +180,8 @@ echo "Windows compatibility:"
 echo "  Wine:      $BUILDROOT_OUT/target/usr/bin/wine"
 echo "  WinExec:   $BUILDROOT_OUT/target/usr/bin/seven-winexec"
 echo "  WinInstall:$BUILDROOT_OUT/target/usr/bin/seven-wininstall"
+echo "Desktop:"
+echo "  Desktop:   $BUILDROOT_OUT/target/usr/bin/seven-desktop"
 echo
 echo "Run with:"
 echo "  bash seven/run-qemu.sh"
