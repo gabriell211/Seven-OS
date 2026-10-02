@@ -1,0 +1,9 @@
+#!/bin/sh
+
+case " $(cat /proc/cmdline 2>/dev/null) " in
+	*" seven.recovery=1 "*)
+		mkdir -p /run/seven
+		touch /run/seven/recovery
+		echo "Seven OS recovery mode enabled."
+		;;
+esac
