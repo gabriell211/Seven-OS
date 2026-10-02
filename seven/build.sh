@@ -26,9 +26,34 @@ mkdir -p "$BUILD_ROOT" "$KERNEL_OUT" "$BUILDROOT_OUT"
 echo "[Seven] Configuring kernel..."
 make -C "$ROOT_DIR" O="$KERNEL_OUT" x86_64_defconfig
 
-"$ROOT_DIR/scripts/config" --file "$KERNEL_OUT/.config"     -e BLK_DEV_INITRD     -e DEVTMPFS     -e DEVTMPFS_MOUNT     -e TMPFS     -e PROC_FS     -e SYSFS     -e TTY     -e SERIAL_8250     -e SERIAL_8250_CONSOLE     -e UNIX     -e INET     -e PACKET     -e VIRTIO     -e VIRTIO_PCI     -e VIRTIO_NET
+"$ROOT_DIR/scripts/config" --file "$KERNEL_OUT/.config" \
+    -e BLK_DEV_INITRD \
+    -e DEVTMPFS \
+    -e DEVTMPFS_MOUNT \
+    -e TMPFS \
+    -e PROC_FS \
+    -e SYSFS \
+    -e TTY \
+    -e SERIAL_8250 \
+    -e SERIAL_8250_CONSOLE \
+    -e UNIX \
+    -e INET \
+    -e PACKET \
+    -e VIRTIO \
+    -e VIRTIO_PCI \
+    -e VIRTIO_NET \
+    -e BINFMT_SCRIPT \
+    -e BINFMT_MISC \
+    -e NTSYNC
 
 make -C "$ROOT_DIR" O="$KERNEL_OUT" olddefconfig
+
+for required in CONFIG_BINFMT_MISC=y CONFIG_NTSYNC=y; do
+    grep -qx "$required" "$KERNEL_OUT/.config" || {
+        echo "[Seven] Required kernel feature missing: $required" >&2
+        exit 1
+    }
+done
 
 echo "[Seven] Building Seven Kernel..."
 make -C "$ROOT_DIR" O="$KERNEL_OUT" -j"$JOBS" bzImage
