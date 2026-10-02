@@ -1,6 +1,9 @@
 config BR2_PACKAGE_SEVEN_WIN
 	bool "Seven Windows compatibility layer"
 	depends on BR2_x86_64
+	depends on !BR2_STATIC_LIBS
+	depends on BR2_TOOLCHAIN_HAS_THREADS_NPTL
+	select BR2_PACKAGE_WINE
 	help
 	  Installs the Seven Windows compatibility integration layer.
 
@@ -8,4 +11,4 @@ config BR2_PACKAGE_SEVEN_WIN
 	  prefixes per application, MSI routing and binfmt_misc registration
 	  for Windows PE executables.
 
-	  A Wine runtime must also be present in the final desktop image.
+	  Wine 11 is built into the Seven image as the initial Windows runtime.
