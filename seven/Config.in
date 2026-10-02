@@ -1,7 +1,7 @@
 # Seven OS Buildroot external configuration.
 
 menu "Seven OS"
-source "$BR2_EXTERNAL_SEVEN_PATH/package/gtk-layer-shell/Config.in"
 source "$BR2_EXTERNAL_SEVEN_PATH/package/seven-desktop/Config.in"
+source "$BR2_EXTERNAL_SEVEN_PATH/package/seven-apps/Config.in"
 source "$BR2_EXTERNAL_SEVEN_PATH/package/seven-win/Config.in"
 endmenu
