@@ -1,4 +1,4 @@
-# Validation revision 4
+# Validation revision 5
 name: Seven OS Build Validation
 
 on:
@@ -13,6 +13,7 @@ on:
       - "init/version-timestamp.c"
       - "scripts/**"
       - "arch/x86/**"
+      - "usr/**"
       - ".github/workflows/seven-build.yml"
   workflow_dispatch:
 
