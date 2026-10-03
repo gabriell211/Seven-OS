@@ -3,6 +3,13 @@
 The current Seven Desktop direction is based on the approved Seven OS reference
 layout supplied during development.
 
+## Branding contract
+
+- The product name is **Seven OS**.
+- The shell logo must render **SEVEN OS**, never **SEVEN ON**.
+- Search placeholders, About/System pages, boot UI, installer and recovery must use **Seven OS** consistently.
+- The visual reference may show an older **Seven On** label; that label is intentionally replaced by **Seven OS** in the implementation.
+
 ## Core composition
 
 - persistent left navigation rail;
