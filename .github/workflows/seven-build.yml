@@ -1,4 +1,4 @@
-# Validation revision 6
+# Validation revision 7
 name: Seven OS Build Validation
 
 on:
@@ -14,11 +14,12 @@ on:
       - "scripts/**"
       - "arch/x86/**"
       - "usr/**"
+      - "certs/**"
       - ".github/workflows/seven-build.yml"
   workflow_dispatch:
 
 concurrency:
-  group: seven-os-main-build-v2
+  group: seven-os-main-build-v3
   cancel-in-progress: true
 
 permissions:
