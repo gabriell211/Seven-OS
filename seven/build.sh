@@ -19,6 +19,10 @@ LLVM_MINGW_DEFAULT_DIR="$BUILD_ROOT/${LLVM_MINGW_ARCHIVE%.tar.xz}"
 LLVM_MINGW_DIR="${SEVEN_LLVM_MINGW_DIR:-$LLVM_MINGW_DEFAULT_DIR}"
 DOWNLOAD_DIR="$BUILD_ROOT/downloads"
 
+UPSTREAM_KERNEL_TAG="v7.3-rc5"
+UPSTREAM_KERNEL_COMMIT="72d3fcf802c45d00b300f25b848a93c3a2bd7c7e"
+UPSTREAM_KERNEL_DIR="$BUILD_ROOT/linux-upstream"
+
 die() {
     echo "[Seven] $*" >&2
     exit 1
@@ -32,6 +36,29 @@ verify_sha256() {
     local file="$1"
     local expected="$2"
     printf '%s  %s\n' "$expected" "$file" | sha256sum -c - >/dev/null 2>&1
+}
+
+repair_kernel_source_tree() {
+    local current=""
+
+    if [ -d "$UPSTREAM_KERNEL_DIR/.git" ]; then
+        current="$(git -C "$UPSTREAM_KERNEL_DIR" rev-parse HEAD 2>/dev/null || true)"
+    fi
+
+    if [ "$current" != "$UPSTREAM_KERNEL_COMMIT" ]; then
+        echo "[Seven] Fetching pinned upstream kernel $UPSTREAM_KERNEL_TAG..."
+        rm -rf "$UPSTREAM_KERNEL_DIR"
+        git clone --depth 1 --branch "$UPSTREAM_KERNEL_TAG" --single-branch \
+            https://github.com/torvalds/linux.git "$UPSTREAM_KERNEL_DIR"
+
+        current="$(git -C "$UPSTREAM_KERNEL_DIR" rev-parse HEAD)"
+        [ "$current" = "$UPSTREAM_KERNEL_COMMIT" ] || \
+            die "Upstream kernel commit mismatch: expected $UPSTREAM_KERNEL_COMMIT, got $current"
+    fi
+
+    echo "[Seven] Restoring only missing upstream kernel sources..."
+    rsync -a --ignore-existing --exclude='.git/' \
+        "$UPSTREAM_KERNEL_DIR/" "$ROOT_DIR/"
 }
 
 restore_source_executable_bits() {
@@ -118,6 +145,7 @@ done
 
 mkdir -p "$BUILD_ROOT" "$KERNEL_OUT" "$BUILDROOT_OUT"
 
+repair_kernel_source_tree
 restore_source_executable_bits
 
 echo "[Seven] Configuring kernel..."
