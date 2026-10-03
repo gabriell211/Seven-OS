@@ -1,4 +1,4 @@
-# Validation revision 3
+# Validation revision 4
 name: Seven OS Build Validation
 
 on:
@@ -11,6 +11,8 @@ on:
       - "Kconfig"
       - "include/linux/uts.h"
       - "init/version-timestamp.c"
+      - "scripts/**"
+      - "arch/x86/**"
       - ".github/workflows/seven-build.yml"
   workflow_dispatch:
 
