@@ -1,4 +1,4 @@
-# Validation revision 5
+# Validation revision 6
 name: Seven OS Build Validation
 
 on:
@@ -18,7 +18,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: seven-os-main-build
+  group: seven-os-main-build-v2
   cancel-in-progress: true
 
 permissions:
